@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tellingly — Bauplan, Studio-Upgrade, Abnahme</title>
+<meta name="theme-color" content="#0B0A09">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --kohle-0:#0B0A09; --kohle-1:#17150F;
+  --ton-1:#A8794E; --ton-2:#D3A672;
+  --ink:#EDE7DC; --soft:#9A948A; --line:#26221C;
+  --s1:#C4584E; --s2:#C08A45; --s3:#7E8C6A; --s4:#5F6A72;
+  --serif:"Source Serif 4",Charter,Georgia,serif;
+  --sans:"Archivo",-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--kohle-0);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.62}
+body:before{
+  content:"";position:fixed;inset:0;z-index:99;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
+}
+.wrap{width:min(1240px,100% - 2*clamp(20px,5vw,72px));margin-inline:auto}
+h1,h2,h3,h4{font-weight:400;margin:0;letter-spacing:-0.025em;line-height:1.06}
+p{margin:0 0 1.05em}
+a{color:var(--ton-2)}
+:focus-visible{outline:2px solid var(--ton-2);outline-offset:3px}
+.masthead{padding:clamp(60px,12vh,140px) 0 clamp(40px,7vh,80px)}
+.eyebrow{font:400 11.5px/1.5 var(--mono);letter-spacing:.22em;color:var(--ton-2);margin:0 0 26px}
+h1{font-size:clamp(32px,5.6vw,80px);line-height:1.0;letter-spacing:-0.035em;max-width:17ch}
+.stand{margin:26px 0 0;max-width:56ch;color:#CFC8BC;font-size:clamp(17px,1.4vw,20px)}
+section.sheet{border-top:1px solid var(--line);padding:clamp(52px,8vh,110px) 0}
+.grid{display:grid;grid-template-columns:16ch minmax(0,1fr);gap:clamp(20px,4vw,72px)}
+.grid > *{min-width:0}
+.marg{margin:0;font:400 11.5px/1.6 var(--mono);letter-spacing:.14em;color:var(--soft)}
+.marg b{display:block;color:var(--ton-2);font-weight:400}
+h2{font-size:clamp(28px,3.6vw,50px);max-width:20ch;margin-bottom:.5em}
+h3{font-size:clamp(18px,1.7vw,23px);margin:2.4em 0 .6em}
+.lead{font-size:clamp(19px,1.7vw,24px);line-height:1.42;max-width:36ch}
+.body{max-width:68ch;color:#CFC8BC}
+.tw{overflow-x:auto;max-width:100%;margin-top:22px}
+table{width:100%;min-width:640px;border-collapse:collapse;font-size:15px}
+th{text-align:left;font:400 11.5px/1.5 var(--mono);letter-spacing:.1em;color:var(--soft);padding:0 16px 10px 0;border-bottom:1px solid var(--line);vertical-align:bottom}
+td{padding:14px 16px 14px 0;border-bottom:1px solid #1A1712;vertical-align:top;color:#CFC8BC}
+td:first-child{color:var(--ink);white-space:nowrap;padding-right:24px}
+td.n{font-family:var(--mono);font-size:12.5px;color:var(--ton-2);white-space:nowrap}
+.step{border-top:1px solid var(--line);padding:26px 0;display:grid;grid-template-columns:7ch minmax(0,1fr);gap:clamp(16px,3vw,44px)}
+.step:last-child{border-bottom:1px solid var(--line)}
+.step .no{font:400 26px/1 var(--mono);color:var(--ton-1);letter-spacing:-0.02em}
+.step h4{font-family:var(--serif);font-size:clamp(19px,1.7vw,23px);margin:0 0 .5em;letter-spacing:-0.02em}
+.step p{margin:0 0 .8em;color:#CFC8BC;max-width:66ch}
+.step .ac{font:400 13px/1.75 var(--mono);color:var(--soft);border-left:1px solid var(--line);padding-left:16px;margin-top:14px}
+.step .ac b{color:var(--ton-2);font-weight:400}
+.rank{border-top:1px solid var(--line);padding:24px 0;display:grid;grid-template-columns:5ch minmax(0,1fr);gap:clamp(14px,2.6vw,36px)}
+.rank:last-of-type{border-bottom:1px solid var(--line)}
+.rank > *,.step > *{min-width:0}
+.rank .tag{font:400 12px/1.6 var(--mono);letter-spacing:.1em}
+.rank h4{font-family:var(--serif);font-size:20px;margin:0 0 .45em;letter-spacing:-0.02em}
+.rank p{margin:0 0 .7em;color:#CFC8BC;max-width:66ch}
+.rank .fix{font:400 13.5px/1.72 var(--mono);color:#BDB6AA;background:#100E0C;border:1px solid var(--line);padding:14px 16px;border-radius:2px;white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
+.s1{color:var(--s1)} .s2{color:var(--s2)} .s3{color:var(--s3)} .s4{color:var(--s4)}
+.chk{margin:0;padding:0;list-style:none;columns:2;column-gap:44px}
+.chk li{break-inside:avoid;padding:9px 0 9px 26px;position:relative;border-top:1px solid #1A1712;color:#CFC8BC;font-size:15.5px}
+.chk li:before{content:"";position:absolute;left:0;top:19px;width:11px;height:11px;border:1px solid var(--ton-1);border-radius:1px}
+.note{font:400 13px/1.75 var(--mono);color:var(--soft);margin-top:20px;max-width:70ch}
+.foot{border-top:1px solid var(--line);padding:34px 0 60px;font:400 12px/1.8 var(--mono);color:var(--soft);letter-spacing:.06em}
+@media (max-width:820px){
+  .grid,.step,.rank{grid-template-columns:1fr;gap:10px}
+  .marg,.step .no,.rank .tag{order:-1}
+  .chk{columns:1}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Tellingly — Produktion · Schritte 5 bis 7</p>
+    <h1>Bauplan, Studio-Upgrade, Abnahme.</h1>
+    <p class="stand">Die Schritte 1 bis 4 — Regie, Erlebnisarchitektur, Signature-Hero und Motion-System — liegen vollständig in <a href="direction-3d.html">direction-3d.html</a>. Dieses Dokument setzt dort an: wie gebaut wird, was heute noch billig aussieht, und was vor dem Livegang erledigt sein muss. Alle Messwerte stammen aus dem tatsächlichen Bestand, nicht aus der Schätzung.</p>
+  </div>
+</header>
+
+<!-- ================= 05 BAUPLAN ================= -->
+<section class="sheet" id="bauplan">
+  <div class="wrap grid">
+    <p class="marg"><b>05</b>Bauplan</p>
+    <div>
+      <h2>Vierzehn Schritte, jeder einzeln abnehmbar.</h2>
+      <p class="lead">Jeder Schritt ist als Auftrag formuliert und hat eine Abnahmebedingung. Wer keinen Haken setzen kann, ist nicht fertig.</p>
+      <div class="body" style="margin-top:26px">
+        <p><strong>Drei stehende Regeln für jeden Schritt.</strong> Erstens: erst den Bestand lesen, dann ändern — nichts wird neu geschrieben, was schon funktioniert. Zweitens: ein Schritt ändert genau eine Sache; wer Layout und Motion gleichzeitig anfasst, kann den Fehler nicht mehr zuordnen. Drittens: nach jedem Schritt laufen alle 75 Kombinationen der Bühne durch, sonst gilt der Schritt als nicht erledigt.</p>
+      </div>
+
+      <div class="step"><div class="no">01</div><div>
+        <h4>Gerüst und Budget festlegen</h4>
+        <p>Vite, TypeScript, kein UI-Framework. Eine <code>index.html</code> pro Sprache, statisch vorgerendert. Ordner: <code>/src/scene</code> (Three), <code>/src/motion</code> (Scroll und Easing), <code>/src/content</code> (die fünf Sprachdateien), <code>/src/ui</code>. Kein State-Management, keine Router-Bibliothek.</p>
+        <p class="ac"><b>Abnahme</b> · leere Seite lädt in ≤ 400 ms · kritischer Pfad ≤ 180 kB · Lighthouse-Gerüstlauf ohne Warnung</p>
+      </div></div>
+
+      <div class="step"><div class="no">02</div><div>
+        <h4>Inhalt aus dem Bestand übernehmen</h4>
+        <p>Die fünf Sprachobjekte, die fünfzehn Rückblicke und die fünf Käufer-Argumente werden unverändert aus der heutigen <code>index.html</code> gezogen und in <code>/src/content/*.json</code> gelegt. Kein Umformulieren in diesem Schritt.</p>
+        <p class="ac"><b>Abnahme</b> · Schlüsselzahl in allen fünf Sprachen identisch · kein <code>data-i18n</code> ohne Gegenstück · Diff gegen den Bestand zeigt nur Formatänderungen</p>
+      </div></div>
+
+      <div class="step"><div class="no">03</div><div>
+        <h4>Statisches Vorrendern für fünf Sprachen</h4>
+        <p>Build erzeugt <code>/de/ /fr/ /it/ /en/ /pl/</code> als echte Dateien mit eigenem <code>&lt;title&gt;</code>, <code>&lt;meta description&gt;</code>, <code>&lt;html lang&gt;</code> und wechselseitigem <code>hreflang</code>. Der Sprachumschalter wird zum Link, nicht zum Knopf.</p>
+        <p class="ac"><b>Abnahme</b> · fünf URLs liefern fünf verschiedene HTML-Dokumente · <code>curl</code> ohne JavaScript zeigt die richtige Sprache · hreflang zeigt auf existierende Dateien</p>
+      </div></div>
+
+      <div class="step"><div class="no">04</div><div>
+        <h4>Layout und Raster, ohne 3D</h4>
+        <p>Die ganze Seite als flache, vollständige Version: Raster, Typografie, alle elf Stationen, Bühne, Tabellen. Das ist gleichzeitig der Fallback für alles, was später schiefgeht.</p>
+        <p class="ac"><b>Abnahme</b> · vollständig bedienbar ohne eine Zeile 3D · kein horizontales Scrollen ab 320 px · Überschriftenfolge ohne Sprung</p>
+      </div></div>
+
+      <div class="step"><div class="no">05</div><div>
+        <h4>Typografie scharf stellen</h4>
+        <p>Lizenzierte Schnitte einbinden, als selbst gehostete woff2-Subsets (latin + latin-ext für Polnisch). Optische Grössen, Laufweiten und die Figurenebene nach der Tabelle in der Regie. <code>font-display: swap</code>, Preload für genau zwei Dateien.</p>
+        <p class="ac"><b>Abnahme</b> · kein Netzwerkaufruf zu Dritten · CLS 0 beim Schriftwechsel · polnische Diakritika vollständig</p>
+      </div></div>
+
+      <div class="step"><div class="no">06</div><div>
+        <h4>Szene aufsetzen</h4>
+        <p>Ein Renderer, eine Szene, eine Kamera (FOV 28), ein RAF. Renderer-Instanz wird geteilt, nie pro Sektion neu erzeugt. ACES-Tonemapping, Exposure 0.92, DPR auf 1.75 gedeckelt, Schatten 2048².</p>
+        <p class="ac"><b>Abnahme</b> · genau ein WebGL-Kontext im Dokument · ≤ 6 Draw Calls · sauberes <code>dispose()</code> beim Verlassen</p>
+      </div></div>
+
+      <div class="step"><div class="no">07</div><div>
+        <h4>Der Körper und seine Höhenkarte</h4>
+        <p>Quader 4.2 × 5.6 × 0.14, Kanten 1.5 mm gefast. Die Höhenkarte wird zur Laufzeit in ein Canvas gesetzt — deshalb ist die Schrift auf dem Objekt in jeder Sprache korrekt, ohne fünf Texturen. 768 × 1024, Anisotropie 8.</p>
+        <p class="ac"><b>Abnahme</b> · Textur wird bei Sprachwechsel neu gezeichnet · keine Modelldatei im Build · Textur ≤ 1 MB im Speicher</p>
+      </div></div>
+
+      <div class="step"><div class="no">08</div><div>
+        <h4>Licht und Material</h4>
+        <p>Key 3200 K bei 8° Streifwinkel mit Schatten, Hemisphere-Fill 4 %, Rim nur in Akt V. Materialwerte aus der Regie. Der Winkel des Keys ist die einzige Variable, die der Zeiger bewegt.</p>
+        <p class="ac"><b>Abnahme</b> · bei 12° ist die Schrift lesbar, bei 78° verschwunden · kein Bounce-Licht · Schattenkante ohne Streifenartefakt</p>
+      </div></div>
+
+      <div class="step"><div class="no">09</div><div>
+        <h4>Scroll-Choreografie</h4>
+        <p>Ein einziger Scroll-Treiber, RAF-gedrosselt, liefert p ∈ [0,1] pro gepinnter Sektion. Kamera, Licht und Material lesen p — niemand rechnet selbst. Kein Scroll-Hijacking, kein virtuelles Scrollen.</p>
+        <p class="ac"><b>Abnahme</b> · ein Wisch bewegt genau so weit wie erwartet · Rückwärtsscrollen ist bildgleich · keine Sprünge beim Wechsel der Sektion</p>
+      </div></div>
+
+      <div class="step"><div class="no">10</div><div>
+        <h4>Bühne und Kennzahl-Elemente</h4>
+        <p>Die fünfzehn Kombinationen als DOM, nicht als 3D — sie müssen selektierbar, vorlesbar und druckbar sein. Die Kennzahl-Elemente (Zähler, Balken, Punktraster, Skala, Meter, Striche, Wortaufblendung) bleiben unverändert aus dem Bestand.</p>
+        <p class="ac"><b>Abnahme</b> · 75 Kombinationen fehlerfrei · Zähler landen exakt auf dem Zielwert · Edition bewegt sich nicht</p>
+      </div></div>
+
+      <div class="step"><div class="no">11</div><div>
+        <h4>Zugänglichkeit einbauen, nicht nachrüsten</h4>
+        <p>Canvas <code>aria-hidden</code>, Prosa-Zwilling je Szene, Sprunglink über die Inszenierung, Fokusring auf Kohle mit 3 px Abstand, <code>prefers-reduced-motion</code> schaltet Pinning und Kamerafahrt ab.</p>
+        <p class="ac"><b>Abnahme</b> · Tastatur erreicht jede Station · Screenreader liest die Erzählung ohne Canvas · reduzierte Bewegung kürzt die Seite um fünf Bildschirmhöhen</p>
+      </div></div>
+
+      <div class="step"><div class="no">12</div><div>
+        <h4>Leistung härten</h4>
+        <p>3D lazy nach First Paint, Poster zuerst. Qualitätswächter in zwei Stufen: erst DPR und Schatten fallen lassen, dann einfrieren. Nur <code>transform</code>, <code>opacity</code>, <code>filter</code>, <code>clip-path</code> animieren.</p>
+        <p class="ac"><b>Abnahme</b> · 60 fps auf M1 Air und iPhone 12 · ≥ 45 fps Untergrenze · kein Layout-Thrash im Performance-Profil</p>
+      </div></div>
+
+      <div class="step"><div class="no">13</div><div>
+        <h4>SEO und Teilen</h4>
+        <p>Pro Sprache eigener Titel, Beschreibung, canonical und Open Graph inklusive <code>og:image</code> (1200 × 630, der Körper im Streiflicht). Favicon-Satz, <code>sitemap.xml</code>, <code>robots.txt</code>. Strukturierte Daten: Organization.</p>
+        <p class="ac"><b>Abnahme</b> · Teilen-Vorschau zeigt ein Bild · Rich-Results-Test ohne Fehler · fünf Sprachen einzeln indexierbar</p>
+      </div></div>
+
+      <div class="step"><div class="no">14</div><div>
+        <h4>Ausliefern</h4>
+        <p>Statischer Host mit Brotli und langem Cache für Assets, kurzem für HTML. Sicherheits-Header, kein Tracking von Dritten. Ein Vorschau-Deployment pro Pull Request.</p>
+        <p class="ac"><b>Abnahme</b> · TTFB ≤ 120 ms aus Zürich · HTML nicht länger als 5 Minuten gecacht · Rollback in einem Schritt möglich</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 06 UPGRADE ================= -->
+<section class="sheet" id="upgrade">
+  <div class="wrap grid">
+    <p class="marg"><b>06</b>Studio-Upgrade</p>
+    <div>
+      <h2>Was heute noch nach Vorlage aussieht.</h2>
+      <p class="lead">Nach visueller Wirkung sortiert, nicht nach Aufwand. Die ersten fünf Punkte machen achtzig Prozent des Unterschieds.</p>
+
+      <div class="rank"><div class="tag s1">A1</div><div>
+        <h4>Die Bühne hat einen Rahmen und eine Kopfleiste — das macht sie zum UI-Panel</h4>
+        <p>Ein Kasten mit 1 px Rand und einer beschrifteten Leiste darüber sieht aus wie ein Screenshot einer Anwendung. Genau das soll das Produkt nicht sein. Ein Objekt braucht keinen Rahmen, es braucht Raum und einen Schatten, der es auf den Boden stellt.</p>
+        <div class="fix">.stage { border: 0; background: radial-gradient(120% 90% at 50% 0%, #16181A, #0D0F11 70%); }
+.stagehead { position:absolute; top:0; left:0; padding:0; border:0; background:none;
+             font-size:11px; opacity:.55; }   /* Beschriftung wird Marginalie, nicht Leiste */
+.d-scroll, .d-spread, .d-phone {
+  box-shadow: 0 2px 4px rgba(0,0,0,.5),
+              0 24px 48px -24px rgba(0,0,0,.8),
+              0 60px 90px -60px rgba(0,0,0,1);   /* drei Distanzen statt einer */
+}</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s1">A2</div><div>
+        <h4>Der Akzent ist zur Bedienfarbe verkommen</h4>
+        <p>Grün liegt auf Chips, Links, Aufzählungspunkten, Schaltflächen, Unterstrichen und im Schein der Bühne. Wenn eine Farbe überall ist, sagt sie nichts. In einer Studio-Arbeit erscheint der Akzent höchstens dreimal pro Bildschirm.</p>
+        <div class="fix">Regel: pro Viewport max. 3 Akzentflächen.
+· Aufzählungsstriche → var(--rule) statt Akzent
+· Chip-Rahmen → Tinte 18 %, nur der aktive trägt Farbe
+· Links im Fliesstext → Tinte + 1px Unterstrich, kein Grün
+· Akzent bleibt: aktiver Chip, primäre Schaltfläche, aktive Marke im Lineal</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s1">A3</div><div>
+        <h4>Der Textserif macht Display-Arbeit</h4>
+        <p>Source Serif 4 bei 74 px ist ein Arbeitspferd in einer Rolle, für die es nicht gezeichnet wurde: Punzen zu offen, Serifen zu weich, Laufweite nicht optisch korrigiert. Genau daran erkennt man ein Template.</p>
+        <div class="fix">· Display-Schnitt lizenzieren (GT Alpina Light, opsz für Display)
+· Laufweite −0.035em ab 40 px, −0.02em zwischen 24 und 40 px, 0 darunter
+· Zeilenabstand 1.0 statt 1.06 in der Hero-Zeile
+· Hängende Interpunktion für Anführungen und Gedankenstriche:
+  .pull, .quote { hanging-punctuation: first last; text-indent:-0.28em; }</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s1">A4</div><div>
+        <h4>Alle Sektionen atmen gleich</h4>
+        <p>Jede Sektion nutzt dasselbe <code>clamp()</code> für Innenabstand. Das Ergebnis ist metrisch korrekt und rhythmisch tot. Eine gute Seite hat drei Atemzüge: kurz, normal, lang.</p>
+        <div class="fix">--breath-s: clamp(34px,5vh,64px);
+--breath-m: clamp(56px,9vh,120px);
+--breath-l: clamp(96px,16vh,200px);
+Zuordnung: Argument = L (die These braucht Stille)
+           Formate, Bereiche = M
+           Ausprobieren = S oben, L unten (die Bühne fällt in Ruhe aus)
+           Kontakt = L</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s2">A5</div><div>
+        <h4>Mono trägt zu viel</h4>
+        <p>Marginalien, Beschriftungen, Tabellenköpfe, Notizen, Fusszeile, Formatangaben — alles in Mono. Das liest sich nach Entwicklerästhetik, nicht nach Regie. Mono ist eine Signalschrift, keine Grundausstattung.</p>
+        <div class="fix">Mono bleibt: Zahlen, Sektionsnummern, das Zeitlineal, Dokumentnamen im Hero.
+Alles andere → Grotesk 11.5px / 0.08em / Tinte 62 %:
+  .marg, .medium, .stagenote, .eg, th, .foot { font-family: var(--sans); }</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s2">A6</div><div>
+        <h4>Das Hero-Fenster ist eine Karte, keine Öffnung</h4>
+        <p>Weisse Fläche, 1 px Rand, weicher Schatten — das ist ein Card-Component. Eine Sichtöffnung hat keine Aussenkante, sie hat eine Innenkante und Licht, das durchfällt.</p>
+        <div class="fix">.window {
+  border: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9),      /* obere Schnittkante */
+              inset 0 -1px 0 rgba(0,0,0,.10),
+              0 0 0 1px rgba(0,0,0,.14),
+              0 30px 60px -40px rgba(0,0,0,.7);
+  background-image: url(paper-fibre.png);               /* 2 % Faserstruktur */
+  background-blend-mode: multiply;
+}</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s2">A7</div><div>
+        <h4>Die Doppelseite hat keinen Bund</h4>
+        <p>Zwei Rechtecke nebeneinander mit einer Trennlinie sind keine Doppelseite. Was fehlt, ist der Falz: der Schatten, der zur Mitte hin zunimmt.</p>
+        <div class="fix">.d-spread { position:relative; }
+.d-spread:after {
+  content:""; position:absolute; top:0; bottom:0; left:50%; width:56px;
+  transform:translateX(-50%); pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(0,0,0,.11) 45%,rgba(0,0,0,.11) 55%,transparent);
+}</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s2">A8</div><div>
+        <h4>Die Kennzahl-Elemente sind vollton</h4>
+        <p>Balken und Punkte laufen auf 100 % Tinte, die Restfläche auf 0 %. Das ist ein Diagramm aus einer Bibliothek. Präzision entsteht durch zwei Werte plus optischen Ausgleich.</p>
+        <div class="fix">Füllung 88 % Tinte, Rest 14 %, Rahmen 0.
+Punkte: 9 px, aber gefüllte optisch 8.6 px (dunkle Flächen wirken grösser).
+Balkenhöhe 5 px, Radius 0 — kein abgerundeter Balken.
+Zahl und Element teilen dieselbe Grundlinie, Abstand exakt 12 px.</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s3">A9</div><div>
+        <h4>Die rechte Spalte ist leer, ohne dass es gewollt aussieht</h4>
+        <p>Text bricht bei 64 Zeichen in einem 1140-px-Container. Rechts bleiben 300 px übrig, die nichts tun. Entweder man nutzt sie als echte Marginalspalte oder man verengt den Satzspiegel.</p>
+        <div class="fix">Variante A (empfohlen): Marginalspalte aktivieren —
+  Kennzahl, Quelle, Jahreszahl oder Bildlegende rechts, Grotesk 12 px, Tinte 55 %.
+Variante B: Container auf 980 px, Inhalt zentriert, Marginalie bleibt links.
+Nicht: Text auf 90 Zeichen dehnen.</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s3">A10</div><div>
+        <h4>Das Telefon ist ein abgerundetes Rechteck</h4>
+        <p>Ohne innere Lichtkante und ohne Bodenkontakt schwebt es wie ein Wireframe. Zwei Zeilen CSS trennen Attrappe von Objekt.</p>
+        <div class="fix">.d-phone {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85),
+              0 0 0 .5px rgba(0,0,0,.16),
+              0 26px 40px -26px rgba(0,0,0,.85);
+}
+.d-phone:after {           /* Bodenreflex */
+  content:""; position:absolute; left:12%; right:12%; bottom:-14px; height:14px;
+  background:radial-gradient(50% 100% at 50% 0,rgba(0,0,0,.35),transparent 70%);
+}</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s3">A11</div><div>
+        <h4>Die primäre Schaltfläche ist ein grüner Block</h4>
+        <p>Vollflächiges Grün mit heller Schrift ist die Standardausgabe jedes Baukastens. In einer Marke, deren Material Papier und Graphit ist, gehört die Aktion in dieselbe Welt.</p>
+        <div class="fix">.btn {
+  background:transparent; color:var(--ink);
+  border:1px solid rgba(237,231,220,.28); border-radius:2px;
+  padding:14px 26px;
+}
+.btn:before { background:var(--ink); }          /* füllt von unten */
+.btn:hover { color:var(--kohle-0); border-color:var(--ink); }</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s4">A12</div><div>
+        <h4>Mikrotypografie fehlt</h4>
+        <p>Gedankenstriche mal mit, mal ohne Spatien. Keine optische Randausrichtung. Ziffern im Fliesstext als Mediäval, in Tabellen aber ebenfalls — dort müssten sie tabellarisch und versal sein.</p>
+        <div class="fix">· Schweizer Satz: Halbgeviert mit schmalem Spatium — «Wort&#8239;–&#8239;Wort»
+· td, .d-value { font-variant-numeric: lining-nums tabular-nums; }
+· p { font-variant-numeric: oldstyle-nums proportional-nums; }
+· Abkürzungen mit schmalem Spatium: «CHF&#8239;301&#8239;662»
+· .quote { text-indent:-0.42em } für das öffnende Anführungszeichen</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 07 ABNAHME ================= -->
+<section class="sheet" id="abnahme">
+  <div class="wrap grid">
+    <p class="marg"><b>07</b>Abnahme</p>
+    <div>
+      <h2>Gemessen, nicht geschätzt.</h2>
+      <p class="lead">Der Bestand wurde automatisiert geprüft: Gewicht, DOM, Bildrate, Überschriftenfolge, Meta-Daten, Kontrast, Tastatur, reduzierte Bewegung, ohne JavaScript, 320 bis 1920 px.</p>
+
+      <div class="tw"><table>
+        <thead><tr><th>Messung</th><th>index.html</th><th>index-bold.html</th><th>index-story.html</th><th>Urteil</th></tr></thead>
+        <tbody>
+          <tr><td>Gewicht roh / gzip</td><td class="n">144 / 37 kB</td><td class="n">162 / 42 kB</td><td class="n">183 / 46 kB</td><td>gut</td></tr>
+          <tr><td>DOM-Knoten</td><td class="n">315</td><td class="n">607</td><td class="n">679</td><td>sehr gut</td></tr>
+          <tr><td>Bildrate beim Scrollen</td><td class="n">61</td><td class="n">61</td><td class="n">60</td><td>gut</td></tr>
+          <tr><td>H1 pro Seite</td><td class="n">1</td><td class="n">1</td><td class="n">1</td><td>gut</td></tr>
+          <tr><td>Überschriftensprünge</td><td class="n">1</td><td class="n">1</td><td class="n">1</td><td>Fehler</td></tr>
+          <tr><td>Bedienelemente ohne Namen</td><td class="n">0</td><td class="n">0</td><td class="n">0</td><td>gut</td></tr>
+          <tr><td>hreflang-Einträge</td><td class="n">6</td><td class="n">6</td><td class="n">6</td><td>irreführend</td></tr>
+          <tr><td>Open-Graph-Felder</td><td class="n">5</td><td class="n">5</td><td class="n">5</td><td>og:image fehlt</td></tr>
+          <tr><td>Favicon / Manifest</td><td class="n">0</td><td class="n">0</td><td class="n">0</td><td>Fehler</td></tr>
+          <tr><td>Konsolenfehler</td><td class="n">0</td><td class="n">0</td><td class="n">0</td><td>gut</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Befunde nach Schweregrad</h3>
+
+      <div class="rank"><div class="tag s1">S1</div><div>
+        <h4>Fünf Sprachen, eine Datei — die hreflang-Angaben zeigen ins Leere</h4>
+        <p>Die Seite meldet <code>?lang=fr</code>, <code>?lang=it</code>, <code>?lang=en</code>, <code>?lang=pl</code> als eigene Sprachfassungen. Ausgeliefert wird jedes Mal dasselbe deutsche HTML; die Übersetzung passiert erst im Browser. Eine Suchmaschine sieht fünf identische deutsche Seiten und wertet das als Duplikat.</p>
+        <div class="fix">Sofort: hreflang-Zeilen entfernen, bis es echte URLs gibt.
+Richtig: Bauplan-Schritt 03 — /de/ /fr/ /it/ /en/ /pl/ vorrendern,
+Sprachumschalter wird &lt;a href&gt; statt &lt;button&gt;, canonical je Sprache.</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s1">S1</div><div>
+        <h4>Platzhalter-Adresse an drei Stellen</h4>
+        <p><code>hallo@tellingly.ch</code> steht im Knopf, in der Textzeile und im Script. Die Domain existiert, das Postfach nicht. Der einzige Handlungsaufruf der Seite führt derzeit ins Nichts.</p>
+        <div class="fix">Echte Adresse einsetzen und Zustellung testen.
+Solange keine existiert: Knopf entfernen statt ins Leere zeigen.</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s1">S1</div><div>
+        <h4>Impressum und Datenschutz fehlen</h4>
+        <p>Für eine geschäftlich genutzte Schweizer Website ohne Impressum und ohne Datenschutzerklärung ist ein Livegang nicht vertretbar — unabhängig davon, dass noch keine Firma eingetragen ist.</p>
+        <div class="fix">Zwei zusätzliche statische Seiten, im Fuss verlinkt.
+Datenschutz kann kurz sein: keine Cookies, kein Tracking, Google Fonts
+selbst gehostet (Schritt 05) — dann entfällt die Drittübermittlung.</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s2">S2</div><div>
+        <h4>Überschriftensprung H2 → H4 in der Bühne</h4>
+        <p>Der Titel des dargestellten Dokuments («Ihre Vorsorge, in Zahlen und in Worten») ist als <code>&lt;h4&gt;</code> ausgezeichnet und folgt direkt auf <code>&lt;h2&gt;Sehen Sie es sich an.</code> Er gehört gar nicht in die Gliederung: er ist Inhalt eines abgebildeten Erzeugnisses, nicht Struktur der Seite.</p>
+        <div class="fix">In viewBrief / viewEdition / den Formatvorschauen:
+  &lt;h4 class="d-h1"&gt;  →  &lt;p class="d-h1"&gt;
+  &lt;h4 class="pv-h"&gt;  →  &lt;p class="pv-h"&gt;
+Die Gliederung besteht danach nur noch aus H1, H2 und den Format-H3.</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s2">S2</div><div>
+        <h4>Schrift von Google, render-blockierend</h4>
+        <p>Das Stylesheet von <code>fonts.googleapis.com</code> blockiert das Rendern. Ist der Dienst langsam oder im Firmennetz gesperrt — bei Schweizer Banken und Versicherern keine Seltenheit —, erscheint die Seite spät und in der Ersatzschrift. Zusätzlich ist es eine Datenübermittlung an einen Dritten.</p>
+        <div class="fix">Zwei woff2-Subsets selbst hosten (latin + latin-ext),
+&lt;link rel="preload" as="font" crossorigin&gt; für genau diese zwei,
+@font-face lokal, font-display: swap, size-adjust gegen CLS.</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s2">S2</div><div>
+        <h4>Kein og:image, kein Favicon</h4>
+        <p>Geteilt in Teams, LinkedIn oder Mail erscheint die Seite als graue Fläche ohne Bild und im Browser-Tab ohne Zeichen. Das kostet mehr Glaubwürdigkeit als jede Animation gewinnt.</p>
+        <div class="fix">og:image 1200 × 630 — der Körper im Streiflicht, Wortmarke unten links.
+favicon.svg + apple-touch-icon 180² + site.webmanifest.
+og:image:alt und twitter:card = summary_large_image ergänzen.</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s3">S3</div><div>
+        <h4>Subgrid ohne Rückfall</h4>
+        <p>Die Ausrichtung der drei Format-Beschriftungen hängt an <code>grid-template-rows: subgrid</code>. In Safari vor 16 und Chrome vor 117 stehen die Beschriftungen dann auf verschiedenen Höhen — nicht kaputt, aber sichtbar unsauber.</p>
+        <div class="fix">@supports not (grid-template-rows: subgrid) {
+  .obj { display:flex; flex-direction:column; }
+  .frame { height: 300px; }        /* feste Rahmenhöhe statt Seitenverhältnis */
+}</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s3">S3</div><div>
+        <h4>Öffentlicher Link auf die Arbeitsumgebung</h4>
+        <p>Die Brief-Vorschau verlinkt <code>migro.chatty-pal.com</code> mit einer Portfolio-ID in der URL. Als Beleg stark, als dauerhafte öffentliche Verlinkung einer Arbeitsumgebung fragwürdig.</p>
+        <div class="fix">Demo unter demo.tellingly.ch spiegeln, mit fixer Beispiel-ID
+und noindex. Bis dahin: Link entfernen oder auf Anfrage zeigen.</div>
+      </div></div>
+
+      <div class="rank"><div class="tag s4">S4</div><div>
+        <h4>Prosa-Zwilling für die Inszenierung fehlt</h4>
+        <p>Im Prolog sind die Akte <code>aria-hidden</code>, sichtbar bleibt je ein Satz. Das ist korrekt, aber dünn: wer nicht sehen kann, bekommt fünf Sätze statt der Erzählung.</p>
+        <div class="fix">Je Akt ein &lt;p class="visually-hidden"&gt; mit zwei Sätzen Beschreibung
+dessen, was zu sehen ist — in allen fünf Sprachen.</div>
+      </div></div>
+
+      <h3>Startfreigabe</h3>
+      <ul class="chk">
+        <li>Echte Kontaktadresse eingesetzt und Zustellung getestet</li>
+        <li>Impressum und Datenschutz verlinkt</li>
+        <li>Fünf Sprachen als echte URLs, hreflang stimmt</li>
+        <li>Schriften selbst gehostet, keine Drittanfrage im Netzwerkprotokoll</li>
+        <li>og:image, Favicon, Manifest, sitemap.xml, robots.txt</li>
+        <li>Überschriftenfolge ohne Sprung, ein H1 pro Seite</li>
+        <li>Alle 75 Kombinationen der Bühne in fünf Sprachen durchgeklickt</li>
+        <li>Tastaturweg von oben bis zum Kontakt ohne Falle</li>
+        <li>prefers-reduced-motion geprüft: kein Pinning, keine Kamerafahrt</li>
+        <li>Ohne JavaScript vollständige deutsche Seite</li>
+        <li>320, 390, 768, 1024, 1440, 1920 px ohne horizontales Scrollen</li>
+        <li>Safari 16, Chrome, Firefox, iOS Safari, Android Chrome geprüft</li>
+        <li>Kontrast: Fliesstext ≥ 7:1, Bedienelemente ≥ 4.5:1</li>
+        <li>60 fps auf M1 Air, ≥ 45 fps auf iPhone 12</li>
+        <li>Qualitätswächter greift: DPR und Schatten fallen vor dem Einfrieren</li>
+        <li>Lighthouse ≥ 95 in allen vier Kategorien</li>
+        <li>Sicherheits-Header gesetzt, kein Tracking von Dritten</li>
+        <li>Rollback in einem Schritt möglich</li>
+      </ul>
+
+      <p class="note">Nicht auf der Liste, absichtlich: eine Cookie-Einwilligung. Die Seite setzt keine Cookies, misst nichts und lädt nach Schritt 05 nichts von Dritten. Ein Banner wäre reine Geste — und würde dem Versprechen der Firma widersprechen.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>Tellingly — Produktion · Schritte 5–7 · v1 · 2026</p>
+    <p>Regie, Architektur, Hero und Motion: direction-3d.html</p>
+  </div>
+</footer>
+
+</body>
+</html>

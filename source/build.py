@@ -1,0 +1,1473 @@
+#!/usr/bin/env python3
+# Generates index.html for tellingly.ch — single self-contained static page.
+import re, pathlib
+
+DOCS = {}
+
+DOCS["portfolio"] = [
+ "Depotauszug / Releve de depot      Depot 12-345.678      Stichtag 31.12.2026      CHF",
+ "Position                       Valor        Anzahl      Kurs         Wert       Anteil",
+ "Roche Holding GS             1203204            42     271.90    11 419.80      6.1 %",
+ "Nestle SA                    3886335            65      78.42     5 097.30      2.7 %",
+ "Novartis AG                  1200526            80      94.15     7 532.00      4.0 %",
+ "UBS Group AG                24476758           210      29.86     6 270.60      3.4 %",
+ "iShares Core MSCI World  IE00B4L5Y983          340      98.71    33 561.40     17.9 %",
+ "Swiss Re AG                 12688156            35     121.60     4 256.00      2.3 %",
+ "Obligation CHF 2029  1.50 %                            101.20    25 300.00     13.5 %",
+ "Liquiditaet CHF                                                   8 942.15      4.8 %",
+ "Total Depotwert                                                 187 240.65    100.0 %",
+ "Performance seit 01.01.2026      +6.84 %       Benchmark SPI          +7.12 %",
+ "Realisierte Gewinne 2026        4 118.20       Dividenden            3 664.90",
+ "Depotgebuehr Q4                   187.25       Verwaltungskosten   0.65 % p.a.",
+ "Waehrung  CHF 71.2 %   USD 18.4 %   EUR 7.9 %   Uebrige 2.5 %",
+ "Risikoprofil ausgewogen      Anlagehorizont 8 Jahre      Rebalancing jaehrlich",
+]
+
+DOCS["pension"] = [
+ "Vorsorgeausweis / Certificat de prevoyance    gueltig ab 01.01.2027    Nr. 4 812 977",
+ "Jahrgang 1968    Beschaeftigungsgrad 100.00 %    Eintritt 01.04.2011    BVG/LPP",
+ "Gemeldeter Jahreslohn                                                    118 400.00",
+ "Koordinationsabzug                                                       -26 460.00",
+ "Versicherter Lohn                                                         91 940.00",
+ "Altersguthaben per 31.12.2026                                            301 661.50",
+ "Altersgutschrift 2027            15.0 %                                   13 791.00",
+ "Zinssatz obligatorisch  1.25 %        ueberobligatorisch  1.00 %",
+ "davon obligatorisch 214 880.05        davon ueberobligatorisch 86 781.45",
+ "Umwandlungssatz 65   6.00 %    64   5.80 %    63   5.60 %    62   5.40 %",
+ "Voraussichtliche Altersrente ab 65                                        18 099.70",
+ "Voraussichtliche Altersrente ab 62                                        14 902.30",
+ "Invalidenrente 45 970.00     Ehegattenrente 27 582.00     Waisenrente 9 194.00",
+ "Sparbeitrag Arbeitnehmer monatlich                                           574.62",
+ "Moeglicher Einkauf per 01.01.2027                                         64 209.00",
+ "Freizuegigkeitsleistung Art. 15 / 17 FZG        Deckungsgrad Kasse 108.4 %",
+]
+
+DOCS["school"] = [
+ "Zeugnis / Bulletin scolaire      1. Semester 2026/27      Klasse 3b      Abs. 4 Lekt.",
+ "Fach                                 Note      Vorjahr      Klassendurchschnitt",
+ "Deutsch                               5.0        4.5               4.7",
+ "Franzoesisch                          4.5        4.5               4.4",
+ "Englisch                              5.5        5.0               4.9",
+ "Mathematik                            4.0        4.5               4.3",
+ "Biologie                              5.5        5.0               4.8",
+ "Chemie                                5.0        4.5               4.6",
+ "Physik                                4.5        4.0               4.2",
+ "Geschichte                            5.0        5.0               4.7",
+ "Geografie                             4.5        4.5               4.6",
+ "Bildnerisches Gestalten               5.5        5.5               5.1",
+ "Sport                                 5.5        5.5               5.3",
+ "Gesamtdurchschnitt                    4.96       4.77              4.66",
+ "Promotion erfuellt  ja      Nachpruefung  keine      Dispensation  keine",
+ "Klassenlehrperson ..............................      Datum 06.02.2027",
+]
+
+DOCS["health"] = [
+ "Laborbefund / Rapport de laboratoire      Auftrag 8841-2      Entnahme 14.03.2026",
+ "Parameter                       Wert     Einheit      Referenz            Status",
+ "Haemoglobin                      141     g/l          135 - 170                n",
+ "Leukozyten                       6.8     G/l          4.0 - 10.0               n",
+ "Thrombozyten                     212     G/l          150 - 350                n",
+ "Kreatinin                         94     umol/l       62 - 106                 n",
+ "eGFR                              78     ml/min       > 90                     *",
+ "Glucose nuechtern                6.4     mmol/l       3.9 - 5.5                *",
+ "HbA1c                            5.9     %            < 5.7                    *",
+ "Cholesterin total                6.2     mmol/l       < 5.0                    *",
+ "LDL-Cholesterin                  3.9     mmol/l       < 3.0                    *",
+ "HDL-Cholesterin                  1.2     mmol/l       > 1.0                    n",
+ "Triglyceride                     2.1     mmol/l       < 1.7                    *",
+ "TSH                              2.4     mU/l         0.4 - 4.0                n",
+ "Vitamin D 25-OH                   38     nmol/l       75 - 200                 *",
+ "Blutdruck 24 h  138/86 mmHg      BMI 27.4      Kontrolle in 3 Monaten",
+]
+
+DOCS["team"] = [
+ "Mitarbeiterbeurteilung / Evaluation      Periode 2026      Funktionsstufe 4",
+ "Ziel                                        Gewicht    Erreichung    Bewertung",
+ "Umsatzziel Region Ost                         30 %         108 %            4",
+ "Kundenzufriedenheit NPS +12                   20 %          94 %            3",
+ "Projekt Migration Kernsystem                  25 %         100 %            4",
+ "Fuehrung und Entwicklung Team                 15 %          85 %            3",
+ "Weiterbildung 12 Tage                         10 %         120 %            5",
+ "Gesamtzielerreichung                                       101.4 %",
+ "Kompetenz                    Selbst    Vorgesetzte    Vorjahr    Zielwert",
+ "Zusammenarbeit                    4              4          3           4",
+ "Kommunikation                     4              3          3           4",
+ "Fachkompetenz                     5              4          4           4",
+ "Eigeninitiative                   3              4          3           4",
+ "Belastbarkeit                     4              4          4           4",
+ "Gesamtbewertung  3 von 5      Bonusfaktor 0.9      Lohnband M4",
+ "Naechstes Gespraech 12.01.2027      Unterschrift ......................",
+]
+
+DOC_ORDER = ["portfolio", "pension", "school", "health", "team"]
+
+def doc_html():
+    out = []
+    for i, k in enumerate(DOC_ORDER):
+        lines = DOCS[k]
+        a = "\n".join(lines * 3)
+        b = "\n".join((lines[7:] + lines[:7]) * 3)
+        cls = "doc is-on" if i == 0 else "doc"
+        out.append('<div class="%s"><pre>%s</pre><pre>%s</pre></div>' % (cls, a, b))
+    return "".join(out)
+
+STAGE_INIT = '<div class="d-briefwrap"><div class="d-scroll" tabindex="0" role="region" aria-label="Ihre Vorsorge, in Zahlen und in Worten"><div class="d-page"><div class="d-pagehead"><span class="d-slot" aria-hidden="true"></span><span class="d-kicker">Vorsorge 2026</span></div><h4 class="d-h1">Ihre Vorsorge, in Zahlen und in Worten</h4><section class="d-sec is-on no-motion"><p class="d-label">Altersguthaben</p><p class="d-value">CHF 301’662</p><div class="d-metric"><div class="m-bar"><i style="--w:79.5%"></i><i style="--w:20.5%"></i></div></div><p class="d-text">Dieses Jahr sind CHF 17’345 dazugekommen. CHF 3’554 davon sind Zins — Geld, das Sie nicht einzahlen mussten.</p></section><section class="d-sec is-on no-motion"><p class="d-label">Rente ab 65</p><p class="d-value">CHF 18’100 im Jahr</p></section><section class="d-sec is-on no-motion"><p class="d-label">Wenn Sie mit 62 aufhören</p><p class="d-value">CHF 14’902</p><div class="d-metric"><div class="m-gap"><i style="--w:100%"></i><i class="b" style="--w:82.33%"></i></div></div><p class="d-text">Drei Jahre früher kosten rund ein Sechstel der Rente — lebenslang. Das ist eine Entscheidung, keine Nebenwirkung.</p></section><section class="d-sec is-on no-motion"><p class="d-label">Möglicher Einkauf</p><p class="d-value">CHF 64’209</p></section><div class="d-rule"></div><p class="d-close">Was Sie jetzt entscheiden können — und was Zeit hat.</p></div></div></div>'
+
+TPL = r"""<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tellingly — Daten, erzählt.</title>
+<meta name="description" content="Tellingly macht aus institutionellen Daten eine Erzählung, die Menschen zu Ende lesen. Vorsorge, Portfolio, Schule, Gesundheit, Team. Kreuzlingen, Schweiz.">
+<meta name="theme-color" content="#E7E7E1">
+<link rel="canonical" href="https://tellingly.ch/">
+<link rel="alternate" hreflang="de" href="https://tellingly.ch/?lang=de">
+<link rel="alternate" hreflang="fr" href="https://tellingly.ch/?lang=fr">
+<link rel="alternate" hreflang="it" href="https://tellingly.ch/?lang=it">
+<link rel="alternate" hreflang="en" href="https://tellingly.ch/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://tellingly.ch/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tellingly">
+<meta property="og:title" content="Tellingly — Daten, erzählt.">
+<meta property="og:description" content="Institutionen verschicken Daten. Menschen lesen sie nicht. Tellingly erzählt dieselben Daten so, dass sie zu Ende gelesen werden.">
+<meta property="og:url" content="https://tellingly.ch/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E7E7E1;
+  --paper-2:#DEDED7;
+  --paper-bright:#F7F7F4;
+  --ink:#16191A;
+  --ink-soft:#4E544F;
+  --rule:#C6C6BE;
+  --rule-soft:#D3D3CB;
+  --accent:#2E5B49;
+  --accent-ink:#1F4034;
+  --field:#A3A39A;
+  --serif:"Source Serif 4",Charter,"Bitstream Charter","Iowan Old Style",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--serif);font-size:17px;line-height:1.62;
+  font-variant-numeric:oldstyle-nums proportional-nums;
+  text-rendering:optimizeLegibility;
+}
+.wrap{width:min(1140px,100% - 2*clamp(20px,5vw,60px));margin-inline:auto}
+h1,h2,h3{font-weight:400;margin:0;letter-spacing:-0.012em;line-height:1.14}
+h2{font-size:clamp(25px,3.1vw,38px);max-width:22ch}
+h3{font-size:20px;letter-spacing:0}
+p{margin:0 0 1.05em}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:1px}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:12px;top:12px;z-index:99;background:var(--paper-bright);padding:10px 14px;border:1px solid var(--ink)}
+
+/* ---------- header ---------- */
+.site{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--rule)}
+.bar{display:flex;align-items:baseline;gap:clamp(16px,4vw,40px);padding:14px 0 12px}
+.mark{font-size:20px;text-decoration:none;letter-spacing:-0.02em;white-space:nowrap}
+.mark b{font-weight:600}
+.sections{display:flex;gap:22px;flex:1;font-size:14.5px}
+.sections a{text-decoration:none;color:var(--ink-soft);padding-bottom:2px;border-bottom:1px solid transparent}
+.sections a:hover{color:var(--ink);border-bottom-color:var(--accent)}
+.langs{display:flex;gap:2px;margin-left:auto}
+.langs button{
+  font:500 12px/1 var(--mono);letter-spacing:.06em;color:var(--ink-soft);
+  background:none;border:1px solid transparent;padding:6px 7px;cursor:pointer;border-radius:2px;
+}
+.langs button:hover{color:var(--ink)}
+.langs button[aria-pressed="true"]{color:var(--paper-bright);background:var(--accent);border-color:var(--accent)}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(34px,6vh,72px) 0 clamp(44px,7vh,88px)}
+.envelope{
+  position:relative;overflow:hidden;background:var(--paper-2);
+  border:1px solid var(--rule);
+  min-height:clamp(420px,60vh,600px);
+  display:flex;align-items:center;
+  padding:clamp(22px,4.4vw,64px);
+}
+.field{position:absolute;inset:0;overflow:hidden;user-select:none;pointer-events:none}
+.field .doc{
+  position:absolute;inset:0;display:flex;gap:56px;padding:12px 0 0 14px;
+  opacity:0;visibility:hidden;transition:opacity .5s ease;
+}
+.field .doc.is-on{opacity:1;visibility:visible}
+.field pre{
+  margin:0;flex:none;
+  font:400 9px/1.6 var(--mono);color:var(--field);
+  white-space:pre;font-variant-numeric:tabular-nums;
+}
+@media (max-width:1080px){.field pre:nth-child(2){display:none}}
+.folds{position:absolute;inset:0;pointer-events:none}
+.folds i{position:absolute;left:0;right:0;height:1px;background:rgba(22,25,26,.10)}
+.folds i:nth-child(1){top:33.33%}
+.folds i:nth-child(2){top:66.66%}
+.window{
+  position:relative;background:var(--paper-bright);
+  box-shadow:
+    0 0 0 1px rgba(22,25,26,.16),
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 14px 30px -26px rgba(22,25,26,.7);
+  padding:clamp(24px,3.4vw,44px) clamp(22px,3.4vw,46px);
+  width:100%;
+}
+.opening{position:relative;width:min(700px,100%)}
+.window h1{margin:0;font-size:clamp(26px,3.55vw,44px);line-height:1.16;letter-spacing:-0.018em;display:grid}
+.tell{grid-area:1/1;opacity:0;visibility:hidden;transition:opacity .4s ease;text-wrap:balance}
+.tell.is-on{opacity:1;visibility:visible}
+.tellnav{display:flex;flex-wrap:wrap;gap:4px 22px;margin-top:14px}
+.tellnav button{
+  background:none;border:0;padding:3px 0;cursor:pointer;
+  font:400 11.5px/1.5 var(--mono);letter-spacing:.03em;color:var(--ink-soft);
+  border-bottom:1px solid transparent;
+}
+.tellnav button:hover{color:var(--ink)}
+.tellnav button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.window .quiet{color:var(--ink-soft)}
+.hero-foot{display:flex;flex-wrap:wrap;align-items:baseline;gap:clamp(18px,3vw,44px);margin-top:clamp(22px,3.4vw,38px)}
+.lede{margin:0;max-width:56ch;font-size:clamp(17px,1.5vw,20px);color:var(--ink-soft)}
+
+.btn{
+  display:inline-block;text-decoration:none;background:var(--accent);color:var(--paper-bright);
+  padding:12px 22px;font-size:16px;border:1px solid var(--accent);white-space:nowrap;border-radius:2px;
+  transition:background .16s ease;
+}
+.btn:hover{background:var(--accent-ink)}
+.btn-lg{font-size:18px;padding:15px 30px}
+
+/* ---------- sections ---------- */
+.sec{border-top:1px solid var(--rule);padding:clamp(48px,7.5vh,96px) 0}
+.grid{display:grid;grid-template-columns:14ch minmax(0,1fr);gap:clamp(18px,3vw,54px)}
+.marg{font:400 13px/1.5 var(--mono);color:var(--ink-soft);margin:0}
+.body-col{max-width:74ch}
+.body-col p{max-width:64ch}
+.lead-p{font-size:clamp(18px,1.6vw,21px)}
+h2 + p{margin-top:1.1em}
+.pull{
+  font-size:clamp(21px,2.4vw,29px);line-height:1.28;letter-spacing:-0.012em;
+  border-left:2px solid var(--accent);padding-left:20px;margin:1.6em 0 0;max-width:26ch;
+}
+
+/* ---------- formats ---------- */
+.formats{
+  display:grid;grid-template-columns:0.60fr 1.02fr 1.42fr;
+  grid-template-rows:auto auto;align-items:end;
+  gap:clamp(20px,2.6vw,38px);margin-top:clamp(26px,3.6vw,44px);
+}
+.obj{margin:0;display:grid;grid-row:span 2;grid-template-rows:subgrid;gap:0}
+.frame{
+  background:var(--paper-bright);border:1px solid var(--rule);position:relative;
+  display:flex;flex-direction:column;overflow:hidden;align-self:end;width:100%;
+  padding:14px 15px;
+}
+.f-reel{aspect-ratio:9/19;justify-content:flex-start;border-radius:14px;padding:14px 15px 18px}
+.f-brief{aspect-ratio:4/5;justify-content:flex-start;gap:9px}
+.f-edition{aspect-ratio:16/10;flex-direction:row;padding:0}
+
+.reelbar{display:flex;gap:3px;margin:0 0 12px}
+.reelbar i{height:2px;flex:1;background:var(--rule)}
+.reelbar i:first-child{background:var(--accent)}
+
+.pv-kicker{margin:0 0 10px;font:400 10.5px/1.4 var(--mono);letter-spacing:.05em;color:var(--ink-soft)}
+.pv-num{
+  margin:0 0 10px;font-size:clamp(26px,3.1vw,42px);line-height:1;letter-spacing:-0.02em;
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.pv-numlabel{margin:0 0 6px;font:400 10.5px/1.4 var(--mono);color:var(--ink-soft)}
+.reelfoot{margin-top:auto}
+.pv-line{margin:0;font-size:13px;line-height:1.42;color:var(--ink-soft)}
+.pv-h{margin:0;font-size:clamp(14px,1.25vw,18px);line-height:1.18;font-weight:400;letter-spacing:-0.01em}
+.pv-p{margin:0;font-size:12.5px;line-height:1.5;color:var(--ink-soft)}
+.pv-h2{margin:4px 0 0;font-size:clamp(13px,1.1vw,16px);line-height:1.2;font-weight:400;color:var(--ink)}
+.colrule{height:1px;background:var(--rule-soft)}
+.colrule.s{width:58%}
+.colrule.m{width:86%}
+.pv-rules{display:flex;flex-direction:column;gap:7px;margin-top:2px}
+
+.page{flex:1;padding:16px 15px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.page + .page{border-left:1px solid var(--rule-soft)}
+
+figcaption{padding-top:15px;border-top:1px solid var(--rule);margin-top:14px}
+figcaption h3{margin-bottom:3px}
+.medium{font:400 12.5px/1.5 var(--mono);color:var(--accent);margin:0 0 .7em}
+figcaption p{font-size:15.5px;color:var(--ink-soft);max-width:38ch}
+.note{font-style:italic}
+.eg{font:400 11px/1 var(--mono);color:var(--ink-soft);letter-spacing:.04em;margin:0 0 12px}
+
+/* ---------- verticals ---------- */
+table.verts{width:100%;border-collapse:collapse;margin-top:clamp(26px,3.6vw,42px);font-size:16px}
+.verts th{text-align:left;font-weight:400;font:400 12.5px/1.4 var(--mono);color:var(--ink-soft);padding:0 18px 10px 0;border-bottom:1px solid var(--rule);vertical-align:bottom}
+.verts td{padding:15px 18px 15px 0;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+.verts td:first-child{white-space:nowrap;padding-right:28px}
+.pname{font-size:18px}
+.pname span{color:var(--ink-soft)}
+.verts td:last-child,.verts th:last-child{padding-right:0;color:var(--ink-soft);white-space:nowrap}
+.verts tr:hover td{background:rgba(46,91,73,.045)}
+
+/* ---------- combinator ---------- */
+.combo{margin-top:clamp(34px,4.6vw,56px);border:1px solid var(--rule);background:var(--paper-bright);padding:clamp(20px,3vw,34px)}
+.combo-hint{margin:0 0 18px;color:var(--ink-soft);font-size:16px}
+.chiprow{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-bottom:10px}
+.chiplabel{font:400 12px/1.6 var(--mono);color:var(--ink-soft);width:9ch;flex:none}
+.chip{
+  font-family:var(--serif);font-size:16px;background:none;border:1px solid var(--rule);
+  padding:6px 14px;cursor:pointer;color:var(--ink-soft);border-radius:2px;transition:.15s ease;
+}
+.chip:hover{border-color:var(--ink-soft);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper-bright)}
+.combo-out{margin:22px 0 0;font-size:clamp(26px,3.4vw,42px);line-height:1.1;letter-spacing:-0.018em}
+.token{margin:6px 0 0;font:500 13px/1 var(--mono);letter-spacing:.1em;color:var(--ink-soft)}
+.token .dot{color:var(--accent)}
+
+/* ---------- stage ---------- */
+.stage{
+  --d-paper:#FFFFFF;--d-ink:#111417;--d-soft:#585F66;--d-rule:#E2E4E6;--d-slot:#868D93;
+  margin-top:clamp(20px,2.6vw,30px);border:1px solid var(--rule);background:#ECEDEE;
+}
+.stagehead{
+  margin:0;padding:9px 14px;border-bottom:1px solid #DDDEDF;
+  font:400 11.5px/1.5 var(--mono);color:#5C6369;
+}
+.stageview{
+  height:clamp(430px,58vh,600px);
+  display:flex;align-items:center;justify-content:center;
+  padding:clamp(16px,2.4vw,30px);
+}
+.stagenote{margin:12px 0 0;font:400 13px/1.6 var(--mono);color:var(--ink-soft)}
+.stagemotion{margin:12px 0 0;font-size:15.5px;color:var(--ink-soft);max-width:62ch}
+
+/* the unbranded document skin */
+.d-kicker{margin:0;font:400 10.5px/1.4 var(--mono);letter-spacing:.06em;color:var(--d-soft)}
+.d-title{margin:10px 0 0;font-size:clamp(21px,2.2vw,29px);line-height:1.14;letter-spacing:-0.015em;color:var(--d-ink)}
+.d-label{margin:0;font:400 10.5px/1.4 var(--mono);letter-spacing:.04em;color:var(--d-soft)}
+.d-value{
+  margin:7px 0 0;font-size:clamp(24px,2.6vw,36px);line-height:1.06;letter-spacing:-0.02em;color:var(--d-ink);
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.d-text{margin:12px 0 0;font-size:14px;line-height:1.55;color:var(--d-soft)}
+.d-close{margin:0;font-size:clamp(17px,1.7vw,22px);line-height:1.28;color:var(--d-ink)}
+.d-slot{display:inline-block;width:52px;height:15px;border:1px dashed var(--d-slot);border-radius:2px;position:relative;flex:none}
+.d-slot:after{content:"Logo";position:absolute;inset:0;font:400 7.5px/15px var(--mono);letter-spacing:.08em;text-align:center;color:var(--d-slot)}
+
+/* reel */
+.d-reelwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;height:100%}
+.d-phone{
+  height:calc(100% - 54px);width:auto;max-width:100%;aspect-ratio:9/17.2;
+  background:var(--d-paper);border:1px solid var(--d-rule);
+  border-radius:20px;padding:16px 18px 20px;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 18px 34px -28px rgba(17,20,23,.6);
+}
+.d-rbar{display:flex;gap:3px;margin-bottom:16px;flex:none}
+.d-rbar i{height:2px;flex:1;background:#E2E4E6}
+.d-rbar i.on{background:var(--d-ink)}
+.d-rcard{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+.d-phone .d-title{font-size:22px;line-height:1.16;margin-top:8px}
+.d-phone .d-value{font-size:29px}
+.d-phone .d-close{font-size:19px;line-height:1.26}
+.d-phone .d-text{font-size:13px;margin-top:10px}
+.d-phonefoot{flex:none;padding-top:12px;display:flex;justify-content:center}
+.d-reelnav{display:flex;align-items:center;gap:14px;font:400 12px/1 var(--mono);color:var(--ink-soft)}
+.d-reelnav button{
+  font:400 13px/1 var(--serif);background:none;border:1px solid var(--rule);border-radius:2px;
+  padding:7px 14px;cursor:pointer;color:var(--ink);
+}
+.d-reelnav button:hover{border-color:var(--ink-soft)}
+.d-count{font-variant-numeric:tabular-nums}
+
+/* brief */
+.d-briefwrap{position:relative;width:min(560px,100%);max-height:100%;display:flex}
+.d-briefwrap:after{
+  content:"";position:absolute;left:1px;right:1px;bottom:1px;height:44px;pointer-events:none;
+  background:linear-gradient(to top,#fff 12%,rgba(255,255,255,0));
+}
+.d-scroll{
+  width:100%;max-height:100%;overflow-y:auto;
+  background:var(--d-paper);border:1px solid var(--d-rule);
+  box-shadow:0 18px 34px -30px rgba(17,20,23,.55);
+}
+.d-page{padding:clamp(20px,2.4vw,32px)}
+.d-pagehead{display:flex;align-items:center;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--d-rule);margin-bottom:22px}
+.d-h1{margin:0 0 26px;font-weight:400;font-size:clamp(22px,2.3vw,30px);line-height:1.14;letter-spacing:-0.015em;color:var(--d-ink)}
+.d-sec{padding:18px 0;border-top:1px solid var(--d-rule)}
+.d-sec:first-of-type{border-top:0;padding-top:0}
+.d-rule{height:1px;background:var(--d-rule);margin:22px 0 18px}
+
+/* edition */
+.d-spread{
+  width:min(720px,100%);aspect-ratio:16/10;max-height:100%;display:flex;background:var(--d-paper);
+  border:1px solid var(--d-rule);box-shadow:0 20px 38px -30px rgba(17,20,23,.55);overflow:hidden;
+}
+.d-leaf{flex:1;padding:clamp(16px,2vw,28px);display:flex;flex-direction:column;min-width:0;position:relative}
+.d-leaf + .d-leaf{border-left:1px solid var(--d-rule)}
+.d-folio{position:absolute;left:0;right:0;bottom:10px;text-align:center;font:400 9.5px/1 var(--mono);color:var(--d-slot)}
+.d-figs{margin:14px 0 0;padding:0;list-style:none}
+.d-figs li{padding:6px 0;border-bottom:1px solid var(--d-rule);font-size:13px;color:var(--d-ink)}
+.d-figrow{display:flex;justify-content:space-between;gap:12px}
+.d-figs .d-metric{margin-top:5px}
+.d-figs .m-dots{grid-template-columns:repeat(var(--cols,5),7px)}
+.d-figs .m-dots i{width:7px;height:7px}
+.d-figs .m-ticks{height:10px}
+.d-figs .m-ticks i{height:10px}
+.d-figs .m-spark{height:22px}
+.d-figs .m-gap i{height:4px}
+.d-figrow span:first-child{color:var(--d-soft)}
+.d-figrow span:last-child{font-variant-numeric:lining-nums tabular-nums;text-align:right}
+
+/* figure elements — one visual form per kind of number */
+.d-metric{margin-top:12px}
+.d-metric:empty{display:none}
+
+.m-bar{display:flex;height:5px;gap:2px;overflow:hidden}
+.m-bar i{flex:0 0 0%;background:var(--d-ink);transition:flex-basis .7s cubic-bezier(.22,.61,.36,1) .18s}
+.m-bar i:nth-child(2){background:var(--d-slot)}
+.is-on .m-bar i{flex-basis:var(--w)}
+
+.m-gap{display:flex;flex-direction:column;gap:6px}
+.m-gap i{height:6px;width:0;background:var(--d-ink);transition:width .72s cubic-bezier(.22,.61,.36,1) .18s}
+.m-gap i.b{background:var(--d-slot);transition-delay:.32s}
+.is-on .m-gap i{width:var(--w)}
+
+.m-dots{display:grid;grid-template-columns:repeat(var(--cols,5),9px);gap:5px;width:max-content}
+.m-dots i{
+  width:9px;height:9px;border-radius:50%;border:1px solid var(--d-slot);
+  transition:background .22s ease,border-color .22s ease;transition-delay:calc(var(--i)*45ms + 140ms);
+}
+.is-on .m-dots i.on{background:var(--d-ink);border-color:var(--d-ink)}
+
+.m-ticks{display:flex;gap:4px;align-items:flex-end;height:15px}
+.m-ticks i{width:3px;height:0;background:var(--d-ink);transition:height .26s ease;transition-delay:calc(var(--i)*38ms + 140ms)}
+.is-on .m-ticks i{height:15px}
+
+.m-range{position:relative;height:6px;background:#EDEFF0;margin-top:6px}
+.m-range .band{position:absolute;top:0;bottom:0;background:#D6D9DB;left:var(--bl);width:var(--bw)}
+.m-range .mark{position:absolute;top:-4px;left:0;width:2px;height:14px;background:var(--d-ink);transition:left .8s cubic-bezier(.22,.61,.36,1) .18s}
+.is-on .m-range .mark{left:var(--l)}
+
+.m-meter{position:relative;height:6px;background:#EDEFF0;margin-top:6px}
+.m-meter i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--d-ink);transition:width .8s cubic-bezier(.22,.61,.36,1) .18s}
+.is-on .m-meter i{width:var(--w)}
+.m-meter .target{position:absolute;top:-4px;left:var(--t);width:1px;height:14px;background:var(--d-slot)}
+
+.m-spark{display:block;width:100%;height:44px;clip-path:inset(0 100% 0 0);transition:clip-path .9s cubic-bezier(.33,.72,.36,1) .12s}
+.is-on .m-spark{clip-path:inset(0 0 0 0)}
+.m-spark path{fill:none;stroke:var(--d-ink);stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.m-spark line{stroke:var(--d-slot);stroke-width:1;stroke-dasharray:2 3;vector-effect:non-scaling-stroke}
+
+.m-wipe{display:inline-block;clip-path:inset(0 100% 0 0);transition:clip-path .55s cubic-bezier(.22,.61,.36,1) .1s}
+.is-on .m-wipe{clip-path:inset(0 0 0 0)}
+
+/* the card enters in the order the eye should read it */
+.d-rcard .d-label,.d-rcard .d-value,.d-rcard .d-metric,.d-rcard .d-text,.d-rcard .d-kicker,.d-rcard .d-title,.d-rcard .d-close{
+  opacity:0;transform:translateY(9px);
+  transition:opacity .38s ease,transform .46s cubic-bezier(.22,.61,.36,1);
+}
+.d-rcard.is-on .d-label,.d-rcard.is-on .d-kicker{transition-delay:0s}
+.d-rcard.is-on .d-value,.d-rcard.is-on .d-title,.d-rcard.is-on .d-close{transition-delay:.07s}
+.d-rcard.is-on .d-metric{transition-delay:.15s}
+.d-rcard.is-on .d-text{transition-delay:.23s}
+.d-rcard.is-on .d-label,.d-rcard.is-on .d-value,.d-rcard.is-on .d-metric,
+.d-rcard.is-on .d-text,.d-rcard.is-on .d-kicker,.d-rcard.is-on .d-title,.d-rcard.is-on .d-close{
+  opacity:1;transform:none;
+}
+
+/* print does not move */
+.no-motion,.no-motion *{transition:none!important;animation:none!important}
+
+/* why */
+.why{margin-top:clamp(30px,4vw,46px);border-top:1px solid var(--rule);padding-top:clamp(20px,2.6vw,30px);max-width:64ch}
+.why h3{margin:0 0 .6em;font-size:clamp(19px,1.9vw,24px)}
+.why p{margin:0 0 1.1em;color:var(--ink-soft)}
+.why ul{margin:0;padding:0;list-style:none}
+.why li{padding:9px 0 9px 20px;border-top:1px solid var(--rule-soft);position:relative;font-size:16px}
+.why li:before{content:"";position:absolute;left:0;top:19px;width:9px;height:1px;background:var(--accent)}
+
+/* ---------- contact ---------- */
+.sec-contact{text-align:left}
+.sec-contact h2{font-size:clamp(28px,4vw,46px);max-width:18ch}
+.mailline{margin-top:16px;font:400 14px/1.6 var(--mono);color:var(--ink-soft)}
+.mailline a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+footer{border-top:1px solid var(--rule);padding:26px 0 44px}
+.foot{display:flex;flex-wrap:wrap;gap:8px 28px;font:400 13px/1.6 var(--mono);color:var(--ink-soft)}
+.foot p{margin:0}
+.foot .r{margin-left:auto}
+
+/* ---------- responsive ---------- */
+@media (max-width:980px){
+  .formats{grid-template-columns:1fr;max-width:520px}
+  .f-reel{aspect-ratio:9/13}
+  .f-brief{aspect-ratio:4/3}
+  .sections{display:none}
+}
+@media (max-width:760px){
+  .stageview{padding:14px}
+  .d-figs li{font-size:12.5px}
+  .d-spread{flex-direction:column;aspect-ratio:auto;overflow-y:auto;width:100%}
+  .d-leaf + .d-leaf{border-left:0;border-top:1px solid var(--d-rule)}
+  .d-leaf{padding-bottom:26px}
+  .grid{grid-template-columns:1fr;gap:10px}
+  .marg{order:-1}
+  .window{width:100%}
+  .verts,.verts tbody,.verts tr,.verts td{display:block;width:100%}
+  .verts thead{display:none}
+  .verts tr{border-bottom:1px solid var(--rule);padding:16px 0}
+  .verts td{border:0;padding:0 0 6px}
+  .verts td:last-child{white-space:normal}
+  .verts td[data-h]:before{content:attr(data-h);display:block;font:400 11.5px/1.6 var(--mono);color:var(--ink-soft)}
+  .chiplabel{width:100%}
+  .hero-foot{gap:20px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+@media print{
+  .site,.langs,.folds,.field,.btn{display:none}
+  body{background:#fff;color:#000;font-size:11pt}
+  .envelope,.window,.frame,.combo{border:1px solid #999;box-shadow:none;background:#fff;min-height:0}
+  .sec{page-break-inside:avoid}
+}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="a11y.skip">Zum Inhalt springen</a>
+
+<header class="site">
+  <div class="wrap bar">
+    <a class="mark" href="#top"><b>Tellingly</b></a>
+    <nav class="sections" aria-label="Sektionen">
+      <a href="#argument" data-i18n="nav.argument">Argument</a>
+      <a href="#formats" data-i18n="nav.formats">Formate</a>
+      <a href="#verticals" data-i18n="nav.verticals">Bereiche</a>
+      <a href="#try" data-i18n="nav.try">Ausprobieren</a>
+      <a href="#contact" data-i18n="nav.contact">Kontakt</a>
+    </nav>
+    <div class="langs" role="group" aria-label="Sprache · Langue · Lingua · Language">
+      <button type="button" data-lang="de" aria-pressed="true">DE</button>
+      <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+      <button type="button" data-lang="it" aria-pressed="false">IT</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<span id="top"></span>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="envelope">
+      <div class="field" aria-hidden="true">__DOCS__</div>
+      <div class="folds" aria-hidden="true"><i></i><i></i></div>
+      <div class="opening">
+        <div class="window">
+          <h1>
+          <span class="tell is-on" data-i18n="hero.line0">Ihre Bank hat Ihnen im Januar einen Portfolioauszug geschickt.<br><span class="quiet">Sie haben ihn nicht geöffnet.</span></span>
+          <span class="tell" data-i18n="hero.line1">Ihre Pensionskasse hat Ihnen im Januar den Vorsorgeausweis geschickt.<br><span class="quiet">Sie wissen nicht, was er bedeutet.</span></span>
+          <span class="tell" data-i18n="hero.line2">Die Schule hat Ihnen im Februar das Zeugnis Ihres Kindes geschickt.<br><span class="quiet">Sie haben die Zahlen gesehen, nicht das Jahr.</span></span>
+          <span class="tell" data-i18n="hero.line3">Ihre Ärztin hat Ihnen im März einen Befund geschickt.<br><span class="quiet">Sie haben die Hälfte davon gegoogelt.</span></span>
+          <span class="tell" data-i18n="hero.line4">Ihr Arbeitgeber hat Ihnen im Dezember die Beurteilung geschickt.<br><span class="quiet">Sie haben sie einmal überflogen.</span></span>
+          </h1>
+        </div>
+      </div>
+    </div>
+    <div class="tellnav" role="group" aria-label="Dokument" id="tellnav">
+        <button type="button" data-tell="0" aria-pressed="true" data-i18n="hero.tab0">Portfolioauszug</button>
+        <button type="button" data-tell="1" aria-pressed="false" data-i18n="hero.tab1">Vorsorgeausweis</button>
+        <button type="button" data-tell="2" aria-pressed="false" data-i18n="hero.tab2">Zeugnis</button>
+        <button type="button" data-tell="3" aria-pressed="false" data-i18n="hero.tab3">Befund</button>
+        <button type="button" data-tell="4" aria-pressed="false" data-i18n="hero.tab4">Beurteilung</button>
+    </div>
+    <div class="hero-foot">
+      <p class="lede" data-i18n="hero.sub">Tellingly nimmt dieselben Daten und erzählt sie. Institutionen verschicken sie. Menschen lesen sie zu Ende.</p>
+      <a class="btn" href="#contact" data-i18n="hero.cta">Sprechen Sie mit uns</a>
+    </div>
+  </div>
+</section>
+
+<section id="argument" class="sec">
+  <div class="wrap grid">
+    <p class="marg" data-i18n="nav.argument">Argument</p>
+    <div class="body-col">
+      <h2 data-i18n="arg.h">Die Buchhaltung kam vor der Literatur.</h2>
+      <p class="lead-p" data-i18n="arg.p1">Die Schrift wurde um 3400 v. Chr. in Uruk erfunden, um Getreide und Vieh zu zählen. Die ersten Dokumente waren Verzeichnisse. Die Literatur kam tausend Jahre später.</p>
+      <p data-i18n="arg.p2">Irgendwann in den folgenden fünftausend Jahren hörten die Zahlen auf, zu jemandem zu sprechen. Dabei sind ein Vorsorgeausweis und ein Schulzeugnis derselbe menschliche Vorgang: Jemand erzählt Ihnen, was mit etwas geschehen ist, das Ihnen wichtig ist. Wir stellen die Verbindung zwischen dem Buch und der Erzählung wieder her.</p>
+      <p class="pull" data-i18n="arg.pull">Wir vereinfachen Ihre Daten nicht. Wir geben ihnen einen Erzähler.</p>
+    </div>
+  </div>
+</section>
+
+<section id="formats" class="sec">
+  <div class="wrap grid">
+    <p class="marg" data-i18n="nav.formats">Formate</p>
+    <div>
+      <h2 data-i18n="fmt.h">Dieselben Daten, dreimal erzählt.</h2>
+      <p style="max-width:56ch" data-i18n="fmt.sub">Jeder Bereich ist in allen drei Formaten verfügbar. Der Satz unten ist in allen dreien derselbe. Was sich ändert, ist, wie er ankommt.</p>
+      <p class="eg" data-i18n="fmt.eg">Beispiel</p>
+      <div class="formats">
+
+        <figure class="obj">
+          <div class="frame f-reel">
+            <div class="reelbar" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="pv-kicker" data-i18n="pv.kicker">Portfolio 2026</p>
+            <div class="reelfoot">
+              <p class="pv-numlabel" data-i18n="pv.numlabel">Ergebnis 2026</p>
+              <p class="pv-num" data-i18n="pv.num">&#8722;3.12&#8201;%</p>
+              <p class="pv-line" data-i18n="pv.short">Eine klare Strategie schützt nicht vor jeder Schwankung.</p>
+            </div>
+          </div>
+          <figcaption>
+            <h3>Reel</h3>
+            <p class="medium" data-i18n="fmt.reel.medium">Mobil, hochkant, getaktet</p>
+            <p data-i18n="fmt.reel.body">Neunzig Sekunden auf dem Telefon. Das Jahr als Folge von Karten, die man weiterschickt.</p>
+          </figcaption>
+        </figure>
+
+        <figure class="obj">
+          <div class="frame f-brief">
+            <p class="pv-kicker" data-i18n="pv.kicker">Portfolio 2026</p>
+            <h4 class="pv-h" data-i18n="pv.h">Ihr Jahr in dreissig Sekunden</h4>
+            <p class="pv-p" data-i18n="pv.p">Eine klare Strategie schützt nicht vor jeder Schwankung. Sie gibt Orientierung, wenn Märkte, Zinsen und Nachrichten schnell wechseln.</p>
+            <div class="pv-rules" aria-hidden="true"><div class="colrule m"></div><div class="colrule"></div><div class="colrule s"></div></div>
+            <h4 class="pv-h2" data-i18n="pv.h2">Was Ihr Portfolio bewegte</h4>
+            <div class="pv-rules" aria-hidden="true"><div class="colrule"></div><div class="colrule m"></div><div class="colrule"></div><div class="colrule s"></div><div class="colrule m"></div><div class="colrule"></div><div class="colrule"></div><div class="colrule s"></div></div>
+          </div>
+          <figcaption>
+            <h3>Brief</h3>
+            <p class="medium" data-i18n="fmt.brief.medium">Digital, im Browser</p>
+            <p data-i18n="fmt.brief.body">Der ganze Rückblick zum Scrollen. Ein Link, keine Anmeldung, kein PDF.</p>
+            <p class="note" data-i18n="fmt.brief.note">Auf Deutsch ist ein Brief ein Brief: ein Bericht, der ankommt wie Post.</p>
+          </figcaption>
+        </figure>
+
+        <figure class="obj">
+          <div class="frame f-edition">
+            <div class="page">
+              <p class="pv-kicker" data-i18n="pv.kicker">Portfolio 2026</p>
+              <h4 class="pv-h" data-i18n="pv.h">Ihr Jahr in dreissig Sekunden</h4>
+              <p class="pv-p" data-i18n="pv.p">Eine klare Strategie schützt nicht vor jeder Schwankung. Sie gibt Orientierung, wenn Märkte, Zinsen und Nachrichten schnell wechseln.</p>
+            </div>
+            <div class="page">
+              <h4 class="pv-h2" data-i18n="pv.h2">Was Ihr Portfolio bewegte</h4>
+              <div class="pv-rules" aria-hidden="true">
+                <div class="colrule m"></div><div class="colrule"></div><div class="colrule"></div>
+                <div class="colrule s"></div><div class="colrule m"></div><div class="colrule"></div>
+                <div class="colrule"></div><div class="colrule s"></div>
+              </div>
+            </div>
+          </div>
+          <figcaption>
+            <h3>Edition</h3>
+            <p class="medium" data-i18n="fmt.edition.medium">Gedruckt</p>
+            <p data-i18n="fmt.edition.body">Lang, gehaltvoll, hochwertig. Etwas, das man behält — keine Postwurfsendung.</p>
+          </figcaption>
+        </figure>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="verticals" class="sec">
+  <div class="wrap grid">
+    <p class="marg" data-i18n="nav.verticals">Bereiche</p>
+    <div>
+      <h2 data-i18n="ver.h">Fünf Branchen. Ein Handwerk.</h2>
+      <p style="max-width:56ch" data-i18n="ver.sub">Tellingly Studio schreibt, Tellingly Engine erzeugt. Darunter liegen fünf Bereiche — und jeder Bereich erscheint in jedem Format.</p>
+      <table class="verts">
+        <thead>
+          <tr>
+            <th data-i18n="ver.c0">Bereich</th>
+            <th data-i18n="ver.c1">Kunde</th>
+            <th data-i18n="ver.c2">Was die Empfängerin erhält</th>
+            <th data-i18n="ver.c3">Rhythmus</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="pname"><span>Tellingly</span> Portfolio</td>
+            <td data-i18n="ver.portfolio.cust" data-h="Kunde">Banken und Vermögensverwalter</td>
+            <td data-i18n="ver.portfolio.gets" data-h="Empfänger">Eine Anlageübersicht, die Kundinnen und Kunden lesen statt ablegen</td>
+            <td data-i18n="ver.portfolio.cad" data-h="Rhythmus">Quartalsweise oder jährlich</td>
+          </tr>
+          <tr>
+            <td class="pname"><span>Tellingly</span> Pension</td>
+            <td data-i18n="ver.pension.cust" data-h="Kunde">Pensionskassen und Sammelstiftungen</td>
+            <td data-i18n="ver.pension.gets" data-h="Empfänger">Ein Vorsorgeausweis, den man versteht</td>
+            <td data-i18n="ver.pension.cad" data-h="Rhythmus">Jährlich</td>
+          </tr>
+          <tr>
+            <td class="pname"><span>Tellingly</span> School</td>
+            <td data-i18n="ver.school.cust" data-h="Kunde">Schulen und Bildungsbehörden</td>
+            <td data-i18n="ver.school.gets" data-h="Empfänger">Ein Semester- und Jahresbericht für Eltern</td>
+            <td data-i18n="ver.school.cad" data-h="Rhythmus">Zweimal jährlich</td>
+          </tr>
+          <tr>
+            <td class="pname"><span>Tellingly</span> Health</td>
+            <td data-i18n="ver.health.cust" data-h="Kunde">Ärztenetze und Krankenversicherer</td>
+            <td data-i18n="ver.health.gets" data-h="Empfänger">Eine Jahresübersicht zur Gesundheit, die Patientinnen und Patienten verstehen</td>
+            <td data-i18n="ver.health.cad" data-h="Rhythmus">Jährlich</td>
+          </tr>
+          <tr>
+            <td class="pname"><span>Tellingly</span> Team</td>
+            <td data-i18n="ver.team.cust" data-h="Kunde">HR-Abteilungen</td>
+            <td data-i18n="ver.team.gets" data-h="Empfänger">Eine Leistungs- und Entwicklungsbeurteilung</td>
+            <td data-i18n="ver.team.cad" data-h="Rhythmus">Jährlich</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</section>
+
+<section id="try" class="sec">
+  <div class="wrap grid">
+    <p class="marg" data-i18n="nav.try">Ausprobieren</p>
+    <div>
+      <h2 data-i18n="try.h">Sehen Sie es sich an.</h2>
+      <p style="max-width:56ch" data-i18n="try.sub">Wählen Sie einen Bereich und ein Format. Der Inhalt bleibt derselbe — nur die Zustellung ändert sich.</p>
+
+      <div class="combo">
+        <p class="combo-hint" data-i18n="comb.hint">Bereich plus Format ergibt das Produkt. Wählen Sie eines von jedem.</p>
+        <div class="chiprow" role="group" aria-labelledby="lblV">
+          <span class="chiplabel" id="lblV" data-i18n="comb.lblV">Bereich</span>
+          <button type="button" class="chip" data-v="Portfolio" aria-pressed="false">Portfolio</button>
+          <button type="button" class="chip" data-v="Pension" aria-pressed="true">Pension</button>
+          <button type="button" class="chip" data-v="School" aria-pressed="false">School</button>
+          <button type="button" class="chip" data-v="Health" aria-pressed="false">Health</button>
+          <button type="button" class="chip" data-v="Team" aria-pressed="false">Team</button>
+        </div>
+        <div class="chiprow" role="group" aria-labelledby="lblF">
+          <span class="chiplabel" id="lblF" data-i18n="comb.lblF">Format</span>
+          <button type="button" class="chip" data-f="Reel" aria-pressed="false">Reel</button>
+          <button type="button" class="chip" data-f="Brief" aria-pressed="true">Brief</button>
+          <button type="button" class="chip" data-f="Edition" aria-pressed="false">Edition</button>
+        </div>
+        <p class="combo-out" id="comboName" aria-live="polite" translate="no">Pension Brief</p>
+        <p class="token" id="comboToken" aria-hidden="true" translate="no">pension<span class="dot">.</span>brief</p>
+      </div>
+
+      <div class="stage">
+        <p class="stagehead"><span data-i18n="stage.unbranded">Ohne Marke. Farbe, Schrift und Logo kommen von Ihnen.</span></p>
+        <div class="stageview" id="stageview">__STAGEINIT__</div>
+      </div>
+      <p class="stagemotion" id="stagemotion" data-i18n="stage.motion">Reel und Brief bewegen sich, die Edition steht still — sie ist gedruckt. Animation nur dort, wo sie eine Kennzahl erklärt.</p>
+      <p class="stagenote" id="stagenote">Digital, im Browser — Der ganze Rückblick zum Scrollen. Ein Link, keine Anmeldung, kein PDF.</p>
+
+      <div class="why">
+        <h3 id="whyH">Wofür Pensionskassen das einsetzen</h3>
+        <p id="whyP">Der Vorsorgeausweis ist gesetzlich vorgeschrieben und wird trotzdem nicht gelesen. Wer versteht, was er besitzt, fragt seltener nach, entscheidet bewusster und traut seiner Kasse mehr.</p>
+        <ul id="whyO"><li>Weniger Rückfragen nach dem Versand</li><li>Bewusstere Entscheide zu Einkauf, Kapitalbezug und Rentenalter</li><li>Vertrauen in eine Institution, die man sonst nie sieht</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="who" class="sec">
+  <div class="wrap grid">
+    <p class="marg" data-i18n="nav.who">Abgrenzung</p>
+    <div class="body-col">
+      <h2 data-i18n="who.h">Dashboards sind für Analysten.</h2>
+      <p data-i18n="who.p1">Ein BI-Werkzeug bedient Menschen, deren Beruf es ist, auf Daten zu schauen. Tellingly bedient die Person, die das Dokument erhält und sich für Daten überhaupt nicht interessiert: die Rentnerin, den Vater, die Kundin.</p>
+      <p data-i18n="who.p2">Wir sind kein Dashboard, kein BI-Werkzeug, keine Visualisierungsbibliothek. Wenn Ihre Empfänger Zahlen erkunden wollen, kaufen Sie ein Dashboard. Wenn sie verstehen sollen, was geschehen ist, sprechen Sie mit uns.</p>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="sec sec-contact">
+  <div class="wrap grid">
+    <p class="marg" data-i18n="nav.contact">Kontakt</p>
+    <div class="body-col">
+      <h2 data-i18n="contact.h">Sprechen Sie mit uns.</h2>
+      <p class="lead-p" data-i18n="contact.p">Die Dokumente für 2027 entstehen jetzt. Wenn Ihre dabei sein sollen, sprechen wir darüber. Ein Gespräch, keine Demo.</p>
+      <p><a class="btn btn-lg" id="mailBtn" href="mailto:hallo@tellingly.ch" data-i18n="contact.cta">Schreiben Sie uns</a></p>
+      <p class="mailline"><a href="mailto:hallo@tellingly.ch">hallo@tellingly.ch</a></p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <p data-i18n="foot.legal">Tellingly GmbH — Kreuzlingen, Schweiz</p>
+    <p class="r">tellingly.ch</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var LANGS=["de","fr","it","en"];
+
+var I18N={
+de:{
+"meta.title":"Tellingly — Daten, erzählt.",
+"meta.desc":"Tellingly macht aus institutionellen Daten eine Erzählung, die Menschen zu Ende lesen. Vorsorge, Portfolio, Schule, Gesundheit, Team. Kreuzlingen, Schweiz.",
+"a11y.skip":"Zum Inhalt springen",
+"nav.argument":"Argument","nav.formats":"Formate","nav.verticals":"Bereiche","nav.who":"Abgrenzung",
+"nav.contact":"Kontakt",
+"nav.try":"Ausprobieren",
+"try.h":"Sehen Sie es sich an.",
+"try.sub":"Wählen Sie einen Bereich und ein Format. Der Inhalt bleibt derselbe — nur die Zustellung ändert sich.",
+"stage.unbranded":"Ohne Marke. Farbe, Schrift und Logo kommen von Ihnen.",
+"stage.motion":"Reel und Brief bewegen sich, die Edition steht still — sie ist gedruckt. Animation nur dort, wo sie eine Kennzahl erklärt: der Betrag zählt hoch, die Differenz wächst als zweiter Balken, der Laborwert fährt in seinen Referenzbereich.",
+"stage.prev":"Zurück",
+"stage.next":"Weiter",
+"stage.figures":"Kennzahlen",
+"hero.line0":"Ihre Bank hat Ihnen im Januar einen Portfolioauszug geschickt.<br><span class=\"quiet\">Sie haben ihn nicht geöffnet.</span>",
+"hero.line1":"Ihre Pensionskasse hat Ihnen im Januar den Vorsorgeausweis geschickt.<br><span class=\"quiet\">Sie wissen nicht, was er bedeutet.</span>",
+"hero.line2":"Die Schule hat Ihnen im Februar das Zeugnis Ihres Kindes geschickt.<br><span class=\"quiet\">Sie haben die Zahlen gesehen, nicht das Jahr.</span>",
+"hero.line3":"Ihre Ärztin hat Ihnen im März einen Befund geschickt.<br><span class=\"quiet\">Sie haben die Hälfte davon gegoogelt.</span>",
+"hero.line4":"Ihr Arbeitgeber hat Ihnen im Dezember die Beurteilung geschickt.<br><span class=\"quiet\">Sie haben sie einmal überflogen.</span>",
+"hero.navlabel":"Dokument",
+"hero.tab0":"Portfolioauszug",
+"hero.tab1":"Vorsorgeausweis",
+"hero.tab2":"Zeugnis",
+"hero.tab3":"Befund",
+"hero.tab4":"Beurteilung",
+"hero.sub":"Tellingly nimmt dieselben Daten und erzählt sie. Institutionen verschicken sie. Menschen lesen sie zu Ende.",
+"hero.cta":"Sprechen Sie mit uns",
+"arg.h":"Die Buchhaltung kam vor der Literatur.",
+"arg.p1":"Die Schrift wurde um 3400 v. Chr. in Uruk erfunden, um Getreide und Vieh zu zählen. Die ersten Dokumente waren Verzeichnisse. Die Literatur kam tausend Jahre später.",
+"arg.p2":"Irgendwann in den folgenden fünftausend Jahren hörten die Zahlen auf, zu jemandem zu sprechen. Dabei sind ein Vorsorgeausweis und ein Schulzeugnis derselbe menschliche Vorgang: Jemand erzählt Ihnen, was mit etwas geschehen ist, das Ihnen wichtig ist. Wir stellen die Verbindung zwischen dem Buch und der Erzählung wieder her.",
+"arg.pull":"Wir vereinfachen Ihre Daten nicht. Wir geben ihnen einen Erzähler.",
+"fmt.h":"Dieselben Daten, dreimal erzählt.",
+"fmt.sub":"Jeder Bereich erscheint in allen drei Formaten. Derselbe Rückblick, dreimal anders zugestellt.",
+"fmt.eg":"Beispiel",
+"fmt.brief.medium":"Digital, im Browser",
+"fmt.brief.body":"Der ganze Rückblick zum Scrollen. Ein Link, keine Anmeldung, kein PDF.",
+"fmt.brief.note":"Auf Deutsch ist ein Brief ein Brief: ein Bericht, der ankommt wie Post.",
+"fmt.edition.medium":"Gedruckt",
+"fmt.edition.body":"Lang, gehaltvoll, hochwertig. Etwas, das man behält — keine Postwurfsendung.",
+"ver.h":"Fünf Branchen. Ein Handwerk.",
+"ver.sub":"Tellingly Studio schreibt, Tellingly Engine erzeugt. Darunter liegen fünf Bereiche — und jeder Bereich erscheint in jedem Format.",
+"ver.c0":"Bereich","ver.c1":"Kunde","ver.c2":"Was die Empfängerin erhält","ver.c3":"Rhythmus",
+"ver.portfolio.cust":"Banken und Vermögensverwalter",
+"ver.portfolio.gets":"Eine Anlageübersicht, die Kundinnen und Kunden lesen statt ablegen",
+"ver.portfolio.cad":"Quartalsweise oder jährlich",
+"ver.pension.cust":"Pensionskassen und Sammelstiftungen",
+"ver.pension.gets":"Ein Vorsorgeausweis, den man versteht",
+"ver.pension.cad":"Jährlich",
+"ver.school.cust":"Schulen und Bildungsbehörden",
+"ver.school.gets":"Ein Semester- und Jahresbericht für Eltern",
+"ver.school.cad":"Zweimal jährlich",
+"ver.health.cust":"Ärztenetze und Krankenversicherer",
+"ver.health.gets":"Eine Jahresübersicht zur Gesundheit, die Patientinnen und Patienten verstehen",
+"ver.health.cad":"Jährlich",
+"ver.team.cust":"HR-Abteilungen",
+"ver.team.gets":"Eine Leistungs- und Entwicklungsbeurteilung",
+"ver.team.cad":"Jährlich",
+"comb.hint":"Bereich plus Format ergibt das Produkt. Wählen Sie eines von jedem.",
+"comb.lblV":"Bereich","comb.lblF":"Format",
+"who.h":"Dashboards sind für Analysten.",
+"who.p1":"Ein BI-Werkzeug bedient Menschen, deren Beruf es ist, auf Daten zu schauen. Tellingly bedient die Person, die das Dokument erhält und sich für Daten überhaupt nicht interessiert: die Rentnerin, den Vater, die Kundin.",
+"who.p2":"Wir sind kein Dashboard, kein BI-Werkzeug, keine Visualisierungsbibliothek. Wenn Ihre Empfänger Zahlen erkunden wollen, kaufen Sie ein Dashboard. Wenn sie verstehen sollen, was geschehen ist, sprechen Sie mit uns.",
+"contact.h":"Sprechen Sie mit uns.",
+"contact.p":"Die Dokumente für 2027 entstehen jetzt. Wenn Ihre dabei sein sollen, sprechen wir darüber. Ein Gespräch, keine Demo.",
+"contact.cta":"Schreiben Sie uns",
+"foot.legal":"Tellingly GmbH — Kreuzlingen, Schweiz",
+"mail.subject":"Anfrage über tellingly.ch",
+"fmt.reel.medium":"Mobil, hochkant, getaktet",
+"fmt.reel.body":"Neunzig Sekunden auf dem Telefon. Das Jahr als Folge von Karten, die man weiterschickt.",
+"pv.kicker":"Portfolio 2026",
+"pv.num":"&#8722;3.12&#8201;%",
+"pv.numlabel":"Ergebnis 2026",
+"pv.h":"Ihr Jahr in dreissig Sekunden",
+"pv.p":"Eine klare Strategie schützt nicht vor jeder Schwankung. Sie gibt Orientierung, wenn Märkte, Zinsen und Nachrichten schnell wechseln.",
+"pv.short":"Eine klare Strategie schützt nicht vor jeder Schwankung.",
+"pv.h2":"Was Ihr Portfolio bewegte"
+},
+fr:{
+"meta.title":"Tellingly — les données, racontées.",
+"meta.desc":"Tellingly transforme les données institutionnelles en un récit que les gens lisent jusqu’au bout. Prévoyance, portefeuille, école, santé, équipe. Kreuzlingen, Suisse.",
+"a11y.skip":"Aller au contenu",
+"nav.argument":"Argument","nav.formats":"Formats","nav.verticals":"Domaines","nav.who":"Distinction",
+"nav.contact":"Contact",
+"nav.try":"Essayer",
+"try.h":"Voyez par vous-même.",
+"try.sub":"Choisissez un domaine et un format. Le contenu reste le même — seule la livraison change.",
+"stage.unbranded":"Sans marque. Couleur, typographie et logo viennent de vous.",
+"stage.motion":"Le Reel et le Brief bougent, l’Edition reste immobile — c’est de l’imprimé. Du mouvement uniquement là où il explique un chiffre : le montant s’additionne, l’écart pousse en seconde barre, la valeur de laboratoire glisse dans sa plage de référence.",
+"stage.prev":"Retour",
+"stage.next":"Suivant",
+"stage.figures":"Chiffres clés",
+"hero.line0":"Votre banque vous a envoyé un relevé de portefeuille en janvier.<br><span class=\"quiet\">Vous ne l’avez pas ouvert.</span>",
+"hero.line1":"Votre caisse de pension vous a envoyé le certificat en janvier.<br><span class=\"quiet\">Vous ne savez pas ce qu’il signifie.</span>",
+"hero.line2":"L’école vous a remis le bulletin de votre enfant en février.<br><span class=\"quiet\">Vous avez vu les notes, pas l’année.</span>",
+"hero.line3":"Votre médecin vous a envoyé un rapport de laboratoire en mars.<br><span class=\"quiet\">Vous en avez cherché la moitié sur Google.</span>",
+"hero.line4":"Votre employeur vous a remis votre évaluation en décembre.<br><span class=\"quiet\">Vous l’avez parcourue une fois.</span>",
+"hero.navlabel":"Document",
+"hero.tab0":"Relevé de portefeuille",
+"hero.tab1":"Certificat de prévoyance",
+"hero.tab2":"Bulletin scolaire",
+"hero.tab3":"Rapport de laboratoire",
+"hero.tab4":"Évaluation",
+"hero.sub":"Tellingly reprend les mêmes données et les raconte. Les institutions les envoient. Les gens les lisent jusqu’au bout.",
+"hero.cta":"Parlons-en",
+"arg.h":"La comptabilité est venue avant la littérature.",
+"arg.p1":"L’écriture est née à Ourouk vers 3400 av. J.-C. pour compter le grain et le bétail. Les premiers documents étaient des registres. La littérature est arrivée mille ans plus tard.",
+"arg.p2":"Quelque part au cours des cinq mille ans suivants, les chiffres ont cessé de parler à quiconque. Pourtant, un certificat de prévoyance et un bulletin scolaire relèvent du même geste humain : quelqu’un vous raconte ce qui est arrivé à une chose qui compte pour vous. Nous rétablissons le lien entre le registre et le récit.",
+"arg.pull":"Nous ne simplifions pas vos données. Nous leur donnons un narrateur.",
+"fmt.h":"Les mêmes données, racontées de trois façons.",
+"fmt.sub":"Chaque domaine paraît dans les trois formats. Le même bilan, livré de trois façons.",
+"fmt.eg":"Exemple",
+"fmt.brief.medium":"Numérique, dans le navigateur",
+"fmt.brief.body":"Le bilan complet, à faire défiler. Un lien, sans compte, sans PDF.",
+"fmt.brief.note":"En allemand, « Brief » veut dire lettre : un bilan qui arrive comme du courrier.",
+"fmt.edition.medium":"Imprimé",
+"fmt.edition.body":"Long, substantiel, soigné. Un objet que l’on garde — pas un envoi de plus.",
+"ver.h":"Cinq secteurs. Un seul métier.",
+"ver.sub":"Tellingly Studio écrit, Tellingly Engine produit. En dessous, cinq domaines — et chaque domaine existe dans chaque format.",
+"ver.c0":"Domaine","ver.c1":"Client","ver.c2":"Ce que reçoit le destinataire","ver.c3":"Rythme",
+"ver.portfolio.cust":"Banques et gérants de fortune",
+"ver.portfolio.gets":"Un bilan de placement que les clients lisent au lieu de le classer",
+"ver.portfolio.cad":"Trimestriel ou annuel",
+"ver.pension.cust":"Caisses de pension et fondations collectives",
+"ver.pension.gets":"Un certificat de prévoyance que l’on comprend",
+"ver.pension.cad":"Annuel",
+"ver.school.cust":"Écoles et autorités scolaires",
+"ver.school.gets":"Un bilan semestriel et annuel pour les parents",
+"ver.school.cad":"Deux fois par an",
+"ver.health.cust":"Réseaux de médecins et assureurs maladie",
+"ver.health.gets":"Un bilan de santé annuel que les patients comprennent",
+"ver.health.cad":"Annuel",
+"ver.team.cust":"Départements RH",
+"ver.team.gets":"Un bilan de performance et de développement",
+"ver.team.cad":"Annuel",
+"comb.hint":"Un domaine plus un format donnent le produit. Choisissez-en un de chaque.",
+"comb.lblV":"Domaine","comb.lblF":"Format",
+"who.h":"Les tableaux de bord sont faits pour les analystes.",
+"who.p1":"Un outil de BI sert celles et ceux dont le métier est de regarder des données. Tellingly sert la personne qui reçoit le document et qui ne s’intéresse pas du tout aux données : la retraitée, le père, la cliente.",
+"who.p2":"Nous ne sommes ni un tableau de bord, ni un outil de BI, ni une bibliothèque de visualisation. Si vos destinataires veulent explorer les chiffres, achetez un tableau de bord. S’ils doivent comprendre ce qui s’est passé, parlons-en.",
+"contact.h":"Parlons-en.",
+"contact.p":"Les documents pour 2027 se préparent maintenant. Si les vôtres doivent en faire partie, parlons-en. Un entretien, pas une démo.",
+"contact.cta":"Écrivez-nous",
+"foot.legal":"Tellingly GmbH — Kreuzlingen, Suisse",
+"mail.subject":"Demande via tellingly.ch",
+"fmt.reel.medium":"Mobile, vertical, rythmé",
+"fmt.reel.body":"Quatre-vingt-dix secondes sur le téléphone. L’année en cartes que l’on fait suivre.",
+"pv.kicker":"Portfolio 2026",
+"pv.num":"&#8722;3.12&#8201;%",
+"pv.numlabel":"Résultat 2026",
+"pv.h":"Votre année en trente secondes",
+"pv.p":"Une stratégie claire ne protège pas de chaque secousse. Elle donne un repère quand les marchés, les taux et les nouvelles changent vite.",
+"pv.short":"Une stratégie claire ne protège pas de chaque secousse.",
+"pv.h2":"Ce qui a fait bouger votre portefeuille"
+},
+it:{
+"meta.title":"Tellingly — i dati, raccontati.",
+"meta.desc":"Tellingly trasforma i dati istituzionali in un racconto che le persone leggono fino in fondo. Previdenza, portafoglio, scuola, salute, team. Kreuzlingen, Svizzera.",
+"a11y.skip":"Vai al contenuto",
+"nav.argument":"Argomento","nav.formats":"Formati","nav.verticals":"Ambiti","nav.who":"Distinzione",
+"nav.contact":"Contatto",
+"nav.try":"Provare",
+"try.h":"Lo guardi lei stesso.",
+"try.sub":"Scelga un ambito e un formato. Il contenuto resta lo stesso — cambia solo la consegna.",
+"stage.unbranded":"Senza marchio. Colore, carattere e logo arrivano da lei.",
+"stage.motion":"Reel e Brief si muovono, l’Edition resta ferma — è stampa. Movimento solo dove spiega una cifra: l’importo sale contando, la differenza cresce come seconda barra, il valore di laboratorio scivola nel suo intervallo.",
+"stage.prev":"Indietro",
+"stage.next":"Avanti",
+"stage.figures":"Cifre chiave",
+"hero.line0":"La sua banca le ha inviato un estratto di portafoglio in gennaio.<br><span class=\"quiet\">Non l’ha aperto.</span>",
+"hero.line1":"La sua cassa pensioni le ha inviato il certificato in gennaio.<br><span class=\"quiet\">Non sa che cosa significhi.</span>",
+"hero.line2":"La scuola le ha consegnato la pagella di suo figlio in febbraio.<br><span class=\"quiet\">Ha visto i voti, non l’anno.</span>",
+"hero.line3":"Il suo medico le ha inviato un referto di laboratorio in marzo.<br><span class=\"quiet\">Ne ha cercato metà su Google.</span>",
+"hero.line4":"Il suo datore di lavoro le ha consegnato la valutazione in dicembre.<br><span class=\"quiet\">L’ha scorsa una volta.</span>",
+"hero.navlabel":"Documento",
+"hero.tab0":"Estratto di portafoglio",
+"hero.tab1":"Certificato di previdenza",
+"hero.tab2":"Pagella",
+"hero.tab3":"Referto di laboratorio",
+"hero.tab4":"Valutazione",
+"hero.sub":"Tellingly prende gli stessi dati e li racconta. Le istituzioni li spediscono. Le persone li leggono fino in fondo.",
+"hero.cta":"Parliamone",
+"arg.h":"La contabilità è venuta prima della letteratura.",
+"arg.p1":"La scrittura nacque a Uruk intorno al 3400 a.C. per contare grano e bestiame. I primi documenti erano registri. La letteratura arrivò mille anni dopo.",
+"arg.p2":"Da qualche parte, nei cinquemila anni successivi, i numeri hanno smesso di parlare a qualcuno. Eppure un certificato di previdenza e una pagella sono lo stesso gesto umano: qualcuno le racconta che cosa è successo a qualcosa che le sta a cuore. Noi ricostruiamo il legame tra il registro e il racconto.",
+"arg.pull":"Non semplifichiamo i suoi dati. Diamo loro un narratore.",
+"fmt.h":"Gli stessi dati, raccontati in tre modi.",
+"fmt.sub":"Ogni ambito esce in tutti e tre i formati. Lo stesso resoconto, recapitato in tre modi.",
+"fmt.eg":"Esempio",
+"fmt.brief.medium":"Digitale, nel browser",
+"fmt.brief.body":"Il resoconto completo, da scorrere. Un link, senza registrazione, senza PDF.",
+"fmt.brief.note":"In tedesco «Brief» significa lettera: un resoconto che arriva come posta.",
+"fmt.edition.medium":"Stampato",
+"fmt.edition.body":"Lungo, sostanzioso, curato. Un oggetto da tenere — non l’ennesimo invio.",
+"ver.h":"Cinque settori. Un solo mestiere.",
+"ver.sub":"Tellingly Studio scrive, Tellingly Engine produce. Sotto, cinque ambiti — e ogni ambito esiste in ogni formato.",
+"ver.c0":"Ambito","ver.c1":"Cliente","ver.c2":"Che cosa riceve il destinatario","ver.c3":"Ritmo",
+"ver.portfolio.cust":"Banche e gestori patrimoniali",
+"ver.portfolio.gets":"Un resoconto d’investimento che i clienti leggono invece di archiviare",
+"ver.portfolio.cad":"Trimestrale o annuale",
+"ver.pension.cust":"Casse pensioni e fondazioni collettive",
+"ver.pension.gets":"Un certificato di previdenza che si capisce",
+"ver.pension.cad":"Annuale",
+"ver.school.cust":"Scuole e autorità scolastiche",
+"ver.school.gets":"Un resoconto semestrale e annuale per i genitori",
+"ver.school.cad":"Due volte l’anno",
+"ver.health.cust":"Reti di medici e assicuratori malattia",
+"ver.health.gets":"Un riepilogo annuale sulla salute che i pazienti capiscono",
+"ver.health.cad":"Annuale",
+"ver.team.cust":"Reparti HR",
+"ver.team.gets":"Una valutazione delle prestazioni e dello sviluppo",
+"ver.team.cad":"Annuale",
+"comb.hint":"Un ambito più un formato danno il prodotto. Ne scelga uno per parte.",
+"comb.lblV":"Ambito","comb.lblF":"Formato",
+"who.h":"I dashboard sono per gli analisti.",
+"who.p1":"Uno strumento di BI serve chi guarda i dati per mestiere. Tellingly serve la persona che riceve il documento e dei dati non si interessa affatto: la pensionata, il padre, la cliente.",
+"who.p2":"Non siamo un dashboard, né uno strumento di BI, né una libreria di visualizzazione. Se i suoi destinatari vogliono esplorare i numeri, compri un dashboard. Se devono capire che cosa è successo, parliamone.",
+"contact.h":"Parliamone.",
+"contact.p":"I documenti per il 2027 si preparano adesso. Se i suoi devono farne parte, ne parliamo. Un colloquio, non una demo.",
+"contact.cta":"Ci scriva",
+"foot.legal":"Tellingly GmbH — Kreuzlingen, Svizzera",
+"mail.subject":"Richiesta da tellingly.ch",
+"fmt.reel.medium":"Mobile, verticale, ritmato",
+"fmt.reel.body":"Novanta secondi sul telefono. L’anno come una sequenza di carte da inoltrare.",
+"pv.kicker":"Portfolio 2026",
+"pv.num":"&#8722;3.12&#8201;%",
+"pv.numlabel":"Risultato 2026",
+"pv.h":"Il suo anno in trenta secondi",
+"pv.p":"Una strategia chiara non protegge da ogni oscillazione. Dà un orientamento quando mercati, tassi e notizie cambiano in fretta.",
+"pv.short":"Una strategia chiara non protegge da ogni oscillazione.",
+"pv.h2":"Che cosa ha mosso il suo portafoglio"
+},
+en:{
+"meta.title":"Tellingly — data, told.",
+"meta.desc":"Tellingly turns institutional data into a story people finish. Pension, portfolio, school, health, team. Kreuzlingen, Switzerland.",
+"a11y.skip":"Skip to content",
+"nav.argument":"Argument","nav.formats":"Formats","nav.verticals":"Verticals","nav.who":"Distinction",
+"nav.contact":"Contact",
+"nav.try":"Try it",
+"try.h":"See it for yourself.",
+"try.sub":"Pick a vertical and a format. The content stays the same — only the delivery changes.",
+"stage.unbranded":"Unbranded. Colour, type and logo come from you.",
+"stage.motion":"Reel and Brief move; the Edition stays still — it is print. Motion only where it explains a figure: the amount counts up, the shortfall grows as a second bar, the lab value slides into its reference range.",
+"stage.prev":"Back",
+"stage.next":"Next",
+"stage.figures":"Key figures",
+"hero.line0":"Your bank sent you a portfolio statement in January.<br><span class=\"quiet\">You have not opened it.</span>",
+"hero.line1":"Your pension fund sent you the statement in January.<br><span class=\"quiet\">You do not know what it means.</span>",
+"hero.line2":"Your child’s school sent you the report in February.<br><span class=\"quiet\">You saw the grades, not the year.</span>",
+"hero.line3":"Your doctor sent you a lab result in March.<br><span class=\"quiet\">You googled half of it.</span>",
+"hero.line4":"Your employer sent you the review in December.<br><span class=\"quiet\">You skimmed it once.</span>",
+"hero.navlabel":"Document",
+"hero.tab0":"Portfolio statement",
+"hero.tab1":"Pension statement",
+"hero.tab2":"School report",
+"hero.tab3":"Lab result",
+"hero.tab4":"Performance review",
+"hero.sub":"Tellingly takes the same data and tells it. Institutions send it. People finish it.",
+"hero.cta":"Talk to us",
+"arg.h":"Accounting came before literature.",
+"arg.p1":"Writing was invented in Uruk around 3400 BC to count grain and livestock. The first documents were ledgers. Literature arrived a thousand years later.",
+"arg.p2":"Somewhere in the next five thousand years the numbers stopped speaking to anyone. Yet a pension statement and a school report are the same human act: someone telling you what happened to something you care about. We rebuild the connection between the ledger and the telling.",
+"arg.pull":"We do not simplify your data. We give it a narrator.",
+"fmt.h":"The same data, told three ways.",
+"fmt.sub":"Every vertical comes in all three formats. The same review, delivered three ways.",
+"fmt.eg":"Example",
+"fmt.brief.medium":"Digital, in the browser",
+"fmt.brief.body":"The whole review, scrolled. One link, no login, no PDF.",
+"fmt.brief.note":"In German a Brief is a letter: a review that arrives like post.",
+"fmt.edition.medium":"Print",
+"fmt.edition.body":"Long, substantial, considered. Something kept — not another mailing.",
+"ver.h":"Five industries. One craft.",
+"ver.sub":"Tellingly Studio writes, Tellingly Engine generates. Beneath them sit five verticals — and every vertical exists in every format.",
+"ver.c0":"Vertical","ver.c1":"Customer","ver.c2":"What the recipient gets","ver.c3":"Cadence",
+"ver.portfolio.cust":"Banks and wealth managers",
+"ver.portfolio.gets":"An investment review clients read instead of file",
+"ver.portfolio.cad":"Quarterly or annual",
+"ver.pension.cust":"Pension funds and collective foundations",
+"ver.pension.gets":"An occupational pension statement people understand",
+"ver.pension.cad":"Annual",
+"ver.school.cust":"Schools and education authorities",
+"ver.school.gets":"A semester and year-end review for parents",
+"ver.school.cad":"Twice yearly",
+"ver.health.cust":"Physician networks and health insurers",
+"ver.health.gets":"An annual health summary patients understand",
+"ver.health.cad":"Annual",
+"ver.team.cust":"HR departments",
+"ver.team.gets":"A performance and development review",
+"ver.team.cad":"Annual",
+"comb.hint":"A vertical plus a format is the product. Pick one of each.",
+"comb.lblV":"Vertical","comb.lblF":"Format",
+"who.h":"Dashboards are for analysts.",
+"who.p1":"A BI tool serves people whose job is to look at data. Tellingly serves the person who receives the document and has no interest in data at all: the pensioner, the father, the client.",
+"who.p2":"We are not a dashboard, not a BI tool, not a visualisation library. If your recipients want to explore the numbers, buy a dashboard. If they need to understand what happened, talk to us.",
+"contact.h":"Talk to us.",
+"contact.p":"The 2027 documents are being built now. If yours should be among them, let us talk. A conversation, not a demo.",
+"contact.cta":"Write to us",
+"foot.legal":"Tellingly GmbH — Kreuzlingen, Switzerland",
+"mail.subject":"Enquiry via tellingly.ch",
+"fmt.reel.medium":"Mobile, vertical, paced",
+"fmt.reel.body":"Ninety seconds on a phone. The year as a run of cards people forward.",
+"pv.kicker":"Portfolio 2026",
+"pv.num":"&#8722;3.12&#8201;%",
+"pv.numlabel":"Result 2026",
+"pv.h":"Your year in thirty seconds",
+"pv.p":"A clear strategy does not protect you from every swing. It gives you a bearing when markets, rates and news move quickly.",
+"pv.short":"A clear strategy does not protect you from every swing.",
+"pv.h2":"What moved your portfolio"
+}
+};
+
+var nodes=document.querySelectorAll("[data-i18n]");
+var langBtns=document.querySelectorAll("[data-lang]");
+var mailBtn=document.getElementById("mailBtn");
+var metaDesc=document.querySelector('meta[name="description"]');
+var current="de";
+
+function applyLang(l,writeUrl){
+  var d=I18N[l]; if(!d){return;}
+  current=l;
+  document.documentElement.lang=l;
+  for(var i=0;i<nodes.length;i++){
+    var v=d[nodes[i].getAttribute("data-i18n")];
+    if(v!=null){nodes[i].innerHTML=v;}
+  }
+  document.title=d["meta.title"];
+  if(metaDesc){metaDesc.setAttribute("content",d["meta.desc"]);}
+  for(var j=0;j<langBtns.length;j++){
+    langBtns[j].setAttribute("aria-pressed",String(langBtns[j].getAttribute("data-lang")===l));
+  }
+  if(mailBtn){mailBtn.setAttribute("href","mailto:hallo@tellingly.ch?subject="+encodeURIComponent(d["mail.subject"]));}
+  var tn=document.getElementById("tellnav");
+  if(tn&&d["hero.navlabel"]){tn.setAttribute("aria-label",d["hero.navlabel"]);}
+  if(typeof renderStage==="function"){renderStage();}
+  var th=document.querySelectorAll(".verts th");
+  var map=["ver.c0","ver.c1","ver.c2","ver.c3"];
+  var cells=document.querySelectorAll(".verts td[data-h]");
+  for(var k=0;k<cells.length;k++){
+    cells[k].setAttribute("data-h",d[map[(k%3)+1]]);
+  }
+  if(writeUrl&&window.history&&history.replaceState){
+    try{
+      var u=new URL(window.location.href);
+      u.searchParams.set("lang",l);
+      history.replaceState(null,"",u.toString());
+    }catch(e){}
+  }
+}
+
+for(var b=0;b<langBtns.length;b++){
+  langBtns[b].addEventListener("click",function(){
+    applyLang(this.getAttribute("data-lang"),true);
+  });
+}
+
+/* first paint: honour ?lang=, else the browser's preference, else German */
+(function(){
+  var q="";
+  try{q=(new URLSearchParams(window.location.search).get("lang")||"").toLowerCase();}catch(e){}
+  if(LANGS.indexOf(q)>-1){applyLang(q,false);return;}
+  var prefs=navigator.languages||[navigator.language||"de"];
+  for(var i=0;i<prefs.length;i++){
+    var c=String(prefs[i]).slice(0,2).toLowerCase();
+    if(LANGS.indexOf(c)>-1){if(c!=="de"){applyLang(c,false);}else{applyLang("de",false);}return;}
+  }
+  applyLang("de",false);
+})();
+
+/* the window: five documents, five tellings */
+var tells=document.querySelectorAll(".tell");
+var docsEl=document.querySelectorAll(".field .doc");
+var tabsEl=document.querySelectorAll(".tellnav button");
+var tellIdx=0,tellTimer=null,tellLocked=false;
+var reduceMotion=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function showTell(i){
+  tellIdx=i;
+  for(var a=0;a<tells.length;a++){tells[a].classList.toggle("is-on",a===i);}
+  for(var b2=0;b2<docsEl.length;b2++){docsEl[b2].classList.toggle("is-on",b2===i);}
+  for(var c=0;c<tabsEl.length;c++){tabsEl[c].setAttribute("aria-pressed",String(c===i));}
+}
+function tellStart(){
+  if(reduceMotion||tellLocked||tellTimer||tells.length<2){return;}
+  tellTimer=setInterval(function(){showTell((tellIdx+1)%tells.length);},5400);
+}
+function tellStop(){if(tellTimer){clearInterval(tellTimer);tellTimer=null;}}
+
+(function(){
+  for(var i=0;i<tabsEl.length;i++){
+    (function(n){
+      tabsEl[n].addEventListener("click",function(){tellLocked=true;tellStop();showTell(n);});
+    })(i);
+  }
+  var env=document.querySelector(".envelope");
+  if(env){
+    env.addEventListener("mouseenter",tellStop);
+    env.addEventListener("mouseleave",tellStart);
+    env.addEventListener("focusin",tellStop);
+  }
+  document.addEventListener("visibilitychange",function(){
+    if(document.hidden){tellStop();}else{tellStart();}
+  });
+  tellStart();
+})();
+
+var DEMO={"de":{"portfolio":{"kicker":"Portfolio 2026","title":"Ihr Anlagejahr 2026","beats":[{"l":"Ergebnis","v":"−3.12 %","t":"Ein Jahr, das im Februar zu wackeln begann und im Oktober zurückkam. Sie haben nichts falsch gemacht."},{"l":"Depotwert per 31.12.","v":"CHF 459’047"},{"l":"Was gehalten hat","v":"Obligationen","t":"Der ruhigste Teil Ihres Depots hat die beiden schwachen Quartale abgefedert. Genau dafür ist er da."},{"l":"Kosten","v":"0.65 % p.a."}],"close":"Drei Fragen für Ihr nächstes Gespräch. Ihre Beraterin bringt sie mit."},"pension":{"kicker":"Vorsorge 2026","title":"Ihre Vorsorge, in Zahlen und in Worten","beats":[{"l":"Altersguthaben","v":"CHF 301’662","t":"Dieses Jahr sind CHF 17’345 dazugekommen. CHF 3’554 davon sind Zins — Geld, das Sie nicht einzahlen mussten."},{"l":"Rente ab 65","v":"CHF 18’100 im Jahr"},{"l":"Wenn Sie mit 62 aufhören","v":"CHF 14’902","t":"Drei Jahre früher kosten rund ein Sechstel der Rente — lebenslang. Das ist eine Entscheidung, keine Nebenwirkung."},{"l":"Möglicher Einkauf","v":"CHF 64’209"}],"close":"Was Sie jetzt entscheiden können — und was Zeit hat."},"school":{"kicker":"Schuljahr 2026/27","title":"Das erste Semester von Lea","beats":[{"l":"Gesamtdurchschnitt","v":"4.96","t":"Von 4.77 im Vorjahr. Der Sprung kommt aus den Naturwissenschaften, nicht aus mehr Aufwand in allen Fächern."},{"l":"Stärkstes Fach","v":"Englisch 5.5"},{"l":"Grösster Fortschritt","v":"Biologie +0.5","t":"Zwei Fächer haben zugelegt, eines ist zurückgegangen. Mathematik braucht im zweiten Semester Aufmerksamkeit."},{"l":"Absenzen","v":"4 Lektionen"}],"close":"Worüber wir am Elterngespräch sprechen sollten."},"health":{"kicker":"Gesundheit 2026","title":"Ihre Werte, erklärt","beats":[{"l":"Im Normbereich","v":"9 von 15","t":"Die meisten Werte sind unauffällig. Sechs weichen ab — und vier davon hängen miteinander zusammen."},{"l":"LDL-Cholesterin","v":"3.9 mmol/l"},{"l":"Langzeitzucker HbA1c","v":"5.9 %","t":"Noch kein Diabetes, aber die Vorstufe. Dieser Wert bewegt sich schneller als jeder andere, wenn sich Alltag und Ernährung ändern."},{"l":"Nächste Kontrolle","v":"in 3 Monaten"}],"close":"Zwei Dinge, die bis dahin am meisten bringen."},"team":{"kicker":"Jahr 2026","title":"Ihr Jahr im Team","beats":[{"l":"Zielerreichung","v":"101.4 %","t":"Fünf Ziele, vier erreicht oder übertroffen. Das eine, das offen blieb, hing von anderen ab."},{"l":"Gesamtbewertung","v":"3 von 5"},{"l":"Grösster Zuwachs","v":"Kommunikation","t":"Ihre Selbsteinschätzung und die Ihrer Vorgesetzten lagen dieses Jahr zum ersten Mal gleichauf."},{"l":"Weiterbildung","v":"12 Tage"}],"close":"Drei Themen für das Entwicklungsgespräch im Januar."}},"en":{"portfolio":{"kicker":"Portfolio 2026","title":"Your investment year 2026","beats":[{"l":"Result","v":"−3.12 %","t":"A year that started wobbling in February and came back in October. You did nothing wrong."},{"l":"Portfolio value on 31 Dec","v":"CHF 459,047"},{"l":"What held","v":"Bonds","t":"The quietest part of your portfolio absorbed both weak quarters. That is exactly what it is there for."},{"l":"Costs","v":"0.65 % p.a."}],"close":"Three questions for your next meeting. Your adviser will bring them."},"pension":{"kicker":"Pension 2026","title":"Your pension, in figures and in words","beats":[{"l":"Retirement savings","v":"CHF 301,662","t":"CHF 17,345 was added this year. CHF 3,554 of it is interest — money you did not have to pay in."},{"l":"Pension from 65","v":"CHF 18,100 a year"},{"l":"If you stop at 62","v":"CHF 14,902","t":"Three years early costs about a sixth of the pension, for life. That is a decision, not a side effect."},{"l":"Voluntary purchase possible","v":"CHF 64,209"}],"close":"What you can decide now — and what can wait."},"school":{"kicker":"School year 2026/27","title":"Lea’s first semester","beats":[{"l":"Overall average","v":"4.96","t":"Up from 4.77 last year. The jump comes from the sciences, not from more effort across every subject."},{"l":"Strongest subject","v":"English 5.5"},{"l":"Biggest gain","v":"Biology +0.5","t":"Two subjects improved, one slipped. Mathematics needs attention in the second semester."},{"l":"Absences","v":"4 lessons"}],"close":"What we should talk about at the parents’ meeting."},"health":{"kicker":"Health 2026","title":"Your results, explained","beats":[{"l":"Within range","v":"9 of 15","t":"Most of your values are unremarkable. Six are off — and four of those are connected to each other."},{"l":"LDL cholesterol","v":"3.9 mmol/l"},{"l":"Long-term sugar HbA1c","v":"5.9 %","t":"Not diabetes, but the stage before it. This value moves faster than any other when daily habits change."},{"l":"Next check-up","v":"in 3 months"}],"close":"Two things that will help most before then."},"team":{"kicker":"Year 2026","title":"Your year on the team","beats":[{"l":"Goal attainment","v":"101.4 %","t":"Five goals, four met or beaten. The one left open depended on other people."},{"l":"Overall rating","v":"3 of 5"},{"l":"Biggest gain","v":"Communication","t":"Your own assessment and your manager’s landed at the same level for the first time this year."},{"l":"Training","v":"12 days"}],"close":"Three topics for the development conversation in January."}},"fr":{"portfolio":{"kicker":"Portefeuille 2026","title":"Votre année de placement 2026","beats":[{"l":"Résultat","v":"−3.12 %","t":"Une année qui a vacillé en février et qui est revenue en octobre. Vous n’avez rien fait de faux."},{"l":"Valeur au 31.12.","v":"CHF 459 047"},{"l":"Ce qui a tenu","v":"Obligations","t":"La partie la plus calme de votre portefeuille a amorti les deux trimestres faibles. C’est exactement son rôle."},{"l":"Coûts","v":"0.65 % p.a."}],"close":"Trois questions pour votre prochain entretien. Votre conseillère les apportera."},"pension":{"kicker":"Prévoyance 2026","title":"Votre prévoyance, en chiffres et en mots","beats":[{"l":"Avoir de vieillesse","v":"CHF 301 662","t":"CHF 17 345 se sont ajoutés cette année. CHF 3 554 sont des intérêts — de l’argent que vous n’avez pas versé."},{"l":"Rente dès 65 ans","v":"CHF 18 100 par an"},{"l":"Si vous arrêtez à 62 ans","v":"CHF 14 902","t":"Trois ans plus tôt coûtent environ un sixième de la rente, à vie. C’est une décision, pas un effet secondaire."},{"l":"Rachat possible","v":"CHF 64 209"}],"close":"Ce que vous pouvez décider maintenant — et ce qui peut attendre."},"school":{"kicker":"Année scolaire 2026/27","title":"Le premier semestre de Lea","beats":[{"l":"Moyenne générale","v":"4.96","t":"Contre 4.77 l’an dernier. Le progrès vient des sciences, pas d’un effort accru dans toutes les branches."},{"l":"Branche la plus forte","v":"Anglais 5.5"},{"l":"Plus grand progrès","v":"Biologie +0.5","t":"Deux branches ont progressé, une a reculé. Les mathématiques demanderont de l’attention au second semestre."},{"l":"Absences","v":"4 leçons"}],"close":"Ce dont nous devrions parler lors de l’entretien avec les parents."},"health":{"kicker":"Santé 2026","title":"Vos valeurs, expliquées","beats":[{"l":"Dans la norme","v":"9 sur 15","t":"La plupart de vos valeurs sont sans particularité. Six s’écartent — et quatre d’entre elles sont liées."},{"l":"Cholestérol LDL","v":"3.9 mmol/l"},{"l":"Glycémie HbA1c","v":"5.9 %","t":"Pas encore un diabète, mais le stade qui précède. C’est la valeur qui bouge le plus vite quand le quotidien change."},{"l":"Prochain contrôle","v":"dans 3 mois"}],"close":"Deux choses qui aideront le plus d’ici là."},"team":{"kicker":"Année 2026","title":"Votre année dans l’équipe","beats":[{"l":"Atteinte des objectifs","v":"101.4 %","t":"Cinq objectifs, quatre atteints ou dépassés. Le seul resté ouvert dépendait des autres."},{"l":"Évaluation globale","v":"3 sur 5"},{"l":"Plus forte progression","v":"Communication","t":"Votre auto-évaluation et celle de votre responsable se sont rejointes pour la première fois cette année."},{"l":"Formation","v":"12 jours"}],"close":"Trois sujets pour l’entretien de développement en janvier."}},"it":{"portfolio":{"kicker":"Portafoglio 2026","title":"Il suo anno d’investimento 2026","beats":[{"l":"Risultato","v":"−3.12 %","t":"Un anno che ha vacillato in febbraio ed è tornato in ottobre. Lei non ha sbagliato nulla."},{"l":"Valore al 31.12.","v":"CHF 459’047"},{"l":"Che cosa ha tenuto","v":"Obbligazioni","t":"La parte più tranquilla del suo portafoglio ha attutito i due trimestri deboli. È esattamente il suo compito."},{"l":"Costi","v":"0.65 % p.a."}],"close":"Tre domande per il prossimo colloquio. La sua consulente le porterà con sé."},"pension":{"kicker":"Previdenza 2026","title":"La sua previdenza, in cifre e in parole","beats":[{"l":"Avere di vecchiaia","v":"CHF 301’662","t":"Quest’anno si sono aggiunti CHF 17’345. Di questi, CHF 3’554 sono interessi — denaro che lei non ha versato."},{"l":"Rendita dai 65 anni","v":"CHF 18’100 all’anno"},{"l":"Se smette a 62 anni","v":"CHF 14’902","t":"Tre anni prima costano circa un sesto della rendita, a vita. È una decisione, non un effetto collaterale."},{"l":"Riscatto possibile","v":"CHF 64’209"}],"close":"Che cosa può decidere ora — e che cosa può aspettare."},"school":{"kicker":"Anno scolastico 2026/27","title":"Il primo semestre di Lea","beats":[{"l":"Media generale","v":"4.96","t":"Da 4.77 dell’anno scorso. Il salto arriva dalle scienze, non da più impegno in tutte le materie."},{"l":"Materia più forte","v":"Inglese 5.5"},{"l":"Progresso maggiore","v":"Biologia +0.5","t":"Due materie sono migliorate, una è arretrata. La matematica richiederà attenzione nel secondo semestre."},{"l":"Assenze","v":"4 lezioni"}],"close":"Di che cosa dovremmo parlare al colloquio con i genitori."},"health":{"kicker":"Salute 2026","title":"I suoi valori, spiegati","beats":[{"l":"Nella norma","v":"9 su 15","t":"La maggior parte dei valori non presenta particolarità. Sei si discostano — e quattro di questi sono collegati fra loro."},{"l":"Colesterolo LDL","v":"3.9 mmol/l"},{"l":"Glicemia HbA1c","v":"5.9 %","t":"Non è diabete, ma lo stadio che lo precede. È il valore che si muove più in fretta quando cambiano abitudini e alimentazione."},{"l":"Prossimo controllo","v":"fra 3 mesi"}],"close":"Due cose che da qui ad allora servono di più."},"team":{"kicker":"Anno 2026","title":"Il suo anno nel team","beats":[{"l":"Raggiungimento obiettivi","v":"101.4 %","t":"Cinque obiettivi, quattro raggiunti o superati. L’unico rimasto aperto dipendeva da altri."},{"l":"Valutazione complessiva","v":"3 su 5"},{"l":"Crescita maggiore","v":"Comunicazione","t":"La sua autovalutazione e quella della sua responsabile quest’anno hanno coinciso per la prima volta."},{"l":"Formazione","v":"12 giorni"}],"close":"Tre temi per il colloquio di sviluppo di gennaio."}}};
+var WHY={"de":{"portfolio":{"h":"Wofür Banken und Vermögensverwalter das einsetzen","p":"Der Quartals- oder Jahresauszug ist der einzige garantierte Kontaktpunkt mit jedem einzelnen Kunden. Heute wird er abgelegt. Gelesen wird er, wenn er erzählt, was im Depot passiert ist — und er endet mit einer Frage, die ein Gespräch auslöst.","o":["Höhere Lesequote statt ungeöffneter Auszüge","Mehr Beratungstermine, ausgelöst vom Versand selbst","Persönlicher Bezug statt Standardreporting"]},"pension":{"h":"Wofür Pensionskassen das einsetzen","p":"Der Vorsorgeausweis ist gesetzlich vorgeschrieben und wird trotzdem nicht gelesen. Wer versteht, was er besitzt, fragt seltener nach, entscheidet bewusster und traut seiner Kasse mehr.","o":["Weniger Rückfragen nach dem Versand","Bewusstere Entscheide zu Einkauf, Kapitalbezug und Rentenalter","Vertrauen in eine Institution, die man sonst nie sieht"]},"school":{"h":"Wofür Schulen und Bildungsbehörden das einsetzen","p":"Eltern lesen Noten und übersehen den Verlauf. Ein Bericht, der die Entwicklung erzählt, macht das Elterngespräch kürzer und besser — weil beide Seiten mit demselben Bild hineingehen.","o":["Eltern, die vorbereitet ins Gespräch kommen","Weniger Diskussionen über einzelne Noten","Fortschritt wird sichtbar, nicht nur das Niveau"]},"health":{"h":"Wofür Ärztenetze und Krankenversicherer das einsetzen","p":"Ein Befund, den niemand versteht, erzeugt Angst oder Gleichgültigkeit. Beides kostet. Eine erklärte Jahresübersicht bringt Patientinnen und Patienten zur nächsten Kontrolle — und nimmt Anrufe aus der Praxis.","o":["Höhere Termintreue bei Nachkontrollen","Weniger beunruhigte Anrufe nach dem Versand","Prävention, die ankommt statt vorbeigeht"]},"team":{"h":"Wofür HR-Abteilungen das einsetzen","p":"Die Jahresbeurteilung wird geschrieben, unterschrieben und vergessen. Bleibt sie im Kopf, beginnt das Entwicklungsgespräch nicht mehr bei null.","o":["Beurteilungen, an die man sich im März noch erinnert","Bessere Entwicklungs- und Lohngespräche","Ein Signal an Mitarbeitende, dass genau hingeschaut wurde"]}},"en":{"portfolio":{"h":"What banks and wealth managers use it for","p":"The quarterly or annual statement is the one guaranteed touchpoint with every single client. Today it gets filed. It gets read when it tells what actually happened in the portfolio — and it ends with a question that starts a conversation.","o":["Statements that are read instead of filed","More advisory meetings, triggered by the mailing itself","A personal relationship instead of standard reporting"]},"pension":{"h":"What pension funds use it for","p":"The pension statement is legally mandated and still goes unread. People who understand what they own ask fewer questions, decide more deliberately, and trust their fund more.","o":["Fewer support enquiries after the mailing","More deliberate decisions on buy-ins, capital and retirement age","Trust in an institution nobody ever sees"]},"school":{"h":"What schools and education authorities use it for","p":"Parents read grades and miss the trajectory. A report that tells the development makes the parents’ meeting shorter and better — because both sides walk in with the same picture.","o":["Parents who arrive prepared","Fewer arguments about individual grades","Progress becomes visible, not just the level"]},"health":{"h":"What physician networks and health insurers use it for","p":"A result nobody understands produces either fear or indifference. Both are expensive. An explained annual summary brings patients back for the next check-up — and takes calls off the practice.","o":["Better attendance at follow-up appointments","Fewer anxious calls after the mailing","Prevention that lands instead of passing by"]},"team":{"h":"What HR departments use it for","p":"The annual review is written, signed and forgotten. When it stays in mind, the development conversation no longer starts from zero.","o":["Reviews people still remember in March","Better development and salary conversations","A signal to employees that someone actually looked closely"]}},"fr":{"portfolio":{"h":"À quoi cela sert aux banques et aux gérants de fortune","p":"Le relevé trimestriel ou annuel est le seul point de contact garanti avec chaque client. Aujourd’hui, il est classé. Il est lu lorsqu’il raconte ce qui s’est passé dans le portefeuille — et il se termine par une question qui déclenche un entretien.","o":["Des relevés lus au lieu d’être classés","Davantage de rendez-vous, déclenchés par l’envoi lui-même","Une relation personnelle plutôt qu’un reporting standard"]},"pension":{"h":"À quoi cela sert aux caisses de pension","p":"Le certificat de prévoyance est prescrit par la loi et reste malgré tout non lu. Qui comprend ce qu’il possède pose moins de questions, décide plus consciemment et fait davantage confiance à sa caisse.","o":["Moins de demandes après l’envoi","Des décisions plus réfléchies sur le rachat, le capital et l’âge de la retraite","La confiance envers une institution que l’on ne voit jamais"]},"school":{"h":"À quoi cela sert aux écoles et aux autorités scolaires","p":"Les parents lisent les notes et manquent la trajectoire. Un bilan qui raconte l’évolution rend l’entretien plus court et meilleur — parce que les deux parties arrivent avec la même image.","o":["Des parents qui arrivent préparés","Moins de discussions sur telle ou telle note","Le progrès devient visible, pas seulement le niveau"]},"health":{"h":"À quoi cela sert aux réseaux de médecins et aux assureurs","p":"Un résultat que personne ne comprend produit soit de l’angoisse, soit de l’indifférence. Les deux coûtent cher. Un bilan annuel expliqué ramène les patients au contrôle suivant — et décharge le cabinet.","o":["Une meilleure présence aux contrôles de suivi","Moins d’appels inquiets après l’envoi","Une prévention qui arrive au lieu de passer à côté"]},"team":{"h":"À quoi cela sert aux départements RH","p":"L’évaluation annuelle est rédigée, signée et oubliée. Lorsqu’elle reste en tête, l’entretien de développement ne repart plus de zéro.","o":["Des évaluations dont on se souvient encore en mars","De meilleurs entretiens de développement et de salaire","Un signal aux collaborateurs qu’on a vraiment regardé de près"]}},"it":{"portfolio":{"h":"A che cosa serve a banche e gestori patrimoniali","p":"Il resoconto trimestrale o annuale è l’unico punto di contatto garantito con ogni singolo cliente. Oggi viene archiviato. Viene letto quando racconta che cosa è successo nel portafoglio — e si chiude con una domanda che apre un colloquio.","o":["Resoconti letti invece che archiviati","Più appuntamenti di consulenza, generati dall’invio stesso","Una relazione personale al posto del reporting standard"]},"pension":{"h":"A che cosa serve alle casse pensioni","p":"Il certificato di previdenza è prescritto dalla legge e resta comunque non letto. Chi capisce che cosa possiede chiede meno, decide con più consapevolezza e si fida di più della propria cassa.","o":["Meno richieste dopo l’invio","Decisioni più consapevoli su riscatto, capitale ed età di pensionamento","Fiducia in un’istituzione che non si vede mai"]},"school":{"h":"A che cosa serve a scuole e autorità scolastiche","p":"I genitori leggono i voti e perdono di vista il percorso. Un resoconto che racconta lo sviluppo rende il colloquio più breve e migliore — perché entrambe le parti arrivano con la stessa immagine.","o":["Genitori che arrivano preparati","Meno discussioni sui singoli voti","Il progresso diventa visibile, non solo il livello"]},"health":{"h":"A che cosa serve a reti di medici e assicuratori malattia","p":"Un referto che nessuno capisce produce paura o indifferenza. Entrambe costano. Un riepilogo annuale spiegato riporta i pazienti al controllo successivo — e alleggerisce lo studio medico.","o":["Maggiore puntualità ai controlli di follow-up","Meno telefonate preoccupate dopo l’invio","Prevenzione che arriva invece di passare accanto"]},"team":{"h":"A che cosa serve ai reparti HR","p":"La valutazione annuale viene scritta, firmata e dimenticata. Se resta in mente, il colloquio di sviluppo non riparte più da zero.","o":["Valutazioni che a marzo si ricordano ancora","Colloqui di sviluppo e di salario migliori","Un segnale ai collaboratori che qualcuno ha guardato davvero"]}}};
+
+
+/* Motion is an argument, not decoration: it runs where it explains a figure,
+   never on the Edition (print), never under prefers-reduced-motion. */
+var VIS={"portfolio":[{"k":"delta","spark":[0,3,-5,-9,-4,-2,-6,-11,-7,-2,1,-3]},{"k":"num"},{"k":"name"},{"k":"num"}],"pension":[{"k":"num","parts":[79.5,20.5]},{"k":"num"},{"k":"gap","a":18100,"b":14902},{"k":"num"}],"school":[{"k":"from","from":4.77},{"k":"name"},{"k":"gap","a":5.0,"b":5.5},{"k":"ticks","n":4}],"health":[{"k":"share","n":15,"on":9},{"k":"range","min":0,"max":6.5,"band":[0,3.0],"val":3.9},{"k":"range","min":4.5,"max":7.5,"band":[4.5,5.7],"val":5.9},{"k":"ticks","n":3}],"team":[{"k":"meter","val":101.4,"target":100,"max":125},{"k":"share","n":5,"on":3},{"k":"name"},{"k":"ticks","n":12}]};
+var reduceUI=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function numParts(str){
+  var m=String(str).match(/([-\u2212]?)(\d[\d'\u2019.,\u00a0 ]*)/);
+  if(!m){return null;}
+  var raw=m[2],pre=String(str).slice(0,m.index),post=String(str).slice(m.index+m[0].length);
+  var dm=raw.match(/[.,](\d{1,2})$/);
+  var dec=dm?dm[1].length:0;
+  var decSep=dm?raw.charAt(raw.length-dm[1].length-1):".";
+  var body=dec?raw.slice(0,raw.length-dm[1].length-1):raw;
+  var gm=body.match(/['\u2019.,\u00a0 ]/);
+  var val=parseFloat(body.replace(/['\u2019.,\u00a0 ]/g,"")+(dec?"."+raw.slice(-dec):""));
+  if(m[1]){val=-val;}
+  return {pre:pre,post:post,dec:dec,decSep:decSep,grp:gm?gm[0]:"",val:val};
+}
+function fmtNum(v,p){
+  var neg=v<0;v=Math.abs(v);
+  var s=v.toFixed(p.dec),ip=p.dec?s.slice(0,s.length-p.dec-1):s,fp=p.dec?s.slice(s.length-p.dec):"";
+  if(p.grp){ip=ip.replace(/\B(?=(\d{3})+(?!\d))/g,p.grp);}
+  return p.pre+(neg?"\u2212":"")+ip+(p.dec?p.decSep+fp:"")+p.post;
+}
+function countUp(el,animate){
+  var target=el.getAttribute("data-target")||el.textContent;
+  el.setAttribute("data-target",target);
+  var p=numParts(target);
+  if(!p){return;}
+  var from=parseFloat(el.getAttribute("data-from"));
+  if(isNaN(from)){from=0;}
+  if(!animate){el.textContent=target;return;}
+  var t0=null,dur=850;
+  el.textContent=fmtNum(from,p);
+  function step(t){
+    if(t0===null){t0=t;}
+    var k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3);
+    el.textContent=fmtNum(from+(p.val-from)*e,p);
+    if(k<1){requestAnimationFrame(step);}else{el.textContent=target;}
+  }
+  requestAnimationFrame(step);
+}
+function reveal(el,animate){
+  var counts=el.querySelectorAll("[data-count]");
+  if(!animate){
+    el.classList.add("no-motion");
+    el.classList.add("is-on");
+    for(var i=0;i<counts.length;i++){countUp(counts[i],false);}
+    return;
+  }
+  el.classList.remove("no-motion");
+  el.classList.remove("is-on");
+  void el.offsetWidth;
+  el.classList.add("is-on");
+  for(var j=0;j<counts.length;j++){countUp(counts[j],true);}
+}
+function startMotion(view){
+  var animate=!reduceUI&&fSel!=="Edition";
+  if(fSel==="Reel"){
+    var card=view.querySelector(".d-rcard");
+    if(card){reveal(card,animate);}
+    return;
+  }
+  var secs=view.querySelectorAll(".d-sec");
+  if(fSel==="Edition"||!animate||!("IntersectionObserver" in window)){
+    for(var i=0;i<secs.length;i++){reveal(secs[i],false);}
+    if(fSel==="Edition"){reveal(view,false);}
+    return;
+  }
+  var scroller=view.querySelector(".d-scroll");
+  var io=new IntersectionObserver(function(entries){
+    for(var k=0;k<entries.length;k++){
+      if(entries[k].isIntersecting){reveal(entries[k].target,true);io.unobserve(entries[k].target);}
+    }
+  },{root:scroller,threshold:0.55});
+  for(var m2=0;m2<secs.length;m2++){io.observe(secs[m2]);}
+}
+
+var VKEY={Portfolio:"portfolio",Pension:"pension",School:"school",Health:"health",Team:"team"};
+var FNOTE={Reel:["fmt.reel.medium","fmt.reel.body"],Brief:["fmt.brief.medium","fmt.brief.body"],Edition:["fmt.edition.medium","fmt.edition.body"]};
+var vSel="Pension",fSel="Brief",reelIdx=0;
+
+function tx(k){var d=I18N[current];return (d&&d[k])||"";}
+function esc(x){return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function cardsOf(d){
+  var out=[{k:"open"}];
+  for(var i=0;i<d.beats.length;i++){out.push({k:"beat",b:d.beats[i]});}
+  out.push({k:"close"});
+  return out;
+}
+function pct(x){return Math.max(0,Math.min(100,x));}
+function metricHTML(v){
+  if(!v){return "";}
+  var h="",i;
+  if(v.k==="num"&&v.parts){
+    h='<div class="m-bar">';
+    for(i=0;i<v.parts.length;i++){h+='<i style="--w:'+v.parts[i]+'%"></i>';}
+    h+='</div>';
+  }else if(v.k==="gap"){
+    var mx=Math.max(v.a,v.b);
+    h='<div class="m-gap"><i style="--w:'+pct(v.a/mx*100)+'%"></i>'+
+      '<i class="b" style="--w:'+pct(v.b/mx*100)+'%"></i></div>';
+  }else if(v.k==="share"){
+    h='<div class="m-dots" style="--cols:'+(v.n<=6?v.n:5)+'">';
+    for(i=0;i<v.n;i++){h+='<i class="'+(i<v.on?"on":"")+'" style="--i:'+i+'"></i>';}
+    h+='</div>';
+  }else if(v.k==="ticks"){
+    h='<div class="m-ticks">';
+    for(i=0;i<v.n;i++){h+='<i style="--i:'+i+'"></i>';}
+    h+='</div>';
+  }else if(v.k==="range"){
+    var sp=v.max-v.min;
+    h='<div class="m-range"><span class="band" style="--bl:'+pct((v.band[0]-v.min)/sp*100)+
+      '%;--bw:'+pct((v.band[1]-v.band[0])/sp*100)+'%"></span>'+
+      '<span class="mark" style="--l:'+pct((v.val-v.min)/sp*100)+'%"></span></div>';
+  }else if(v.k==="meter"){
+    h='<div class="m-meter"><i style="--w:'+pct(v.val/v.max*100)+'%"></i>'+
+      '<span class="target" style="--t:'+pct(v.target/v.max*100)+'%"></span></div>';
+  }else if(v.k==="delta"){
+    var pts=v.spark,lo=Math.min.apply(null,pts),hi=Math.max.apply(null,pts),rg=(hi-lo)||1,d="";
+    for(i=0;i<pts.length;i++){
+      d+=(i?"L":"M")+(i/(pts.length-1)*100).toFixed(2)+","+(26-(pts[i]-lo)/rg*22).toFixed(2);
+    }
+    var zy=(26-(0-lo)/rg*22).toFixed(2);
+    h='<svg class="m-spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">'+
+      '<line x1="0" y1="'+zy+'" x2="100" y2="'+zy+'"></line><path d="'+d+'"></path></svg>';
+  }
+  return h?'<div class="d-metric">'+h+'</div>':"";
+}
+function beatBlock(b,v){
+  var val=esc(b.v);
+  if(v&&v.k==="name"){val='<span class="m-wipe">'+val+'</span>';}
+  var from=(v&&v.k==="from")?' data-from="'+v.from+'"':"";
+  return '<p class="d-label">'+esc(b.l)+'</p><p class="d-value" data-count="1"'+from+'>'+val+'</p>'+
+         metricHTML(v)+
+         (b.t?'<p class="d-text">'+esc(b.t)+'</p>':'');
+}
+function viewReel(d,vis){
+  var cards=cardsOf(d),n=cards.length;
+  if(reelIdx<0){reelIdx=0;} if(reelIdx>=n){reelIdx=n-1;}
+  var c=cards[reelIdx],inner;
+  if(c.k==="open"){inner='<p class="d-kicker">'+esc(d.kicker)+'</p><p class="d-title">'+esc(d.title)+'</p>';}
+  else if(c.k==="beat"){inner=beatBlock(c.b,vis[reelIdx-1]);}
+  else{inner='<p class="d-close">'+esc(d.close)+'</p>';}
+  var bar="";
+  for(var i=0;i<n;i++){bar+='<i class="'+(i<=reelIdx?"on":"")+'"></i>';}
+  return '<div class="d-reelwrap"><div class="d-phone" data-reel="1" style="cursor:pointer">'+
+    '<div class="d-rbar" aria-hidden="true">'+bar+'</div>'+
+    '<div class="d-rcard">'+inner+'</div>'+
+    '<div class="d-phonefoot" aria-hidden="true"><span class="d-slot" aria-hidden="true"></span></div></div>'+
+    '<div class="d-reelnav">'+
+      '<button type="button" data-reel="-1">'+esc(tx("stage.prev"))+'</button>'+
+      '<span class="d-count">'+(reelIdx+1)+' / '+n+'</span>'+
+      '<button type="button" data-reel="1">'+esc(tx("stage.next"))+'</button>'+
+    '</div></div>';
+}
+function viewBrief(d,vis){
+  var s='<div class="d-page"><div class="d-pagehead"><span class="d-slot" aria-hidden="true"></span>'+
+        '<span class="d-kicker">'+esc(d.kicker)+'</span></div>'+
+        '<h4 class="d-h1">'+esc(d.title)+'</h4>';
+  for(var i=0;i<d.beats.length;i++){s+='<section class="d-sec">'+beatBlock(d.beats[i],vis[i])+'</section>';}
+  s+='<div class="d-rule"></div><p class="d-close">'+esc(d.close)+'</p></div>';
+  return '<div class="d-briefwrap"><div class="d-scroll" tabindex="0" role="region" aria-label="'+esc(d.title)+'">'+s+'</div></div>';
+}
+function viewEdition(d,vis){
+  var figs="";
+  for(var i=0;i<d.beats.length;i++){
+    figs+='<li><span class="d-figrow"><span>'+esc(d.beats[i].l)+'</span><span>'+esc(d.beats[i].v)+
+            '</span></span>'+metricHTML(vis[i])+'</li>';
+  }
+  return '<div class="d-spread">'+
+   '<div class="d-leaf"><div class="d-pagehead"><span class="d-slot" aria-hidden="true"></span>'+
+     '<span class="d-kicker">'+esc(d.kicker)+'</span></div>'+
+     '<h4 class="d-h1">'+esc(d.title)+'</h4>'+
+     '<p class="d-text" style="margin-top:0">'+esc(d.beats[0].t||"")+'</p>'+
+     '<p class="d-text">'+esc(d.beats[2].t||"")+'</p>'+
+     '<div class="d-folio">1</div></div>'+
+   '<div class="d-leaf">'+
+     '<p class="d-label">'+esc(tx("stage.figures"))+'</p>'+
+     '<ul class="d-figs">'+figs+'</ul>'+
+     '<p class="d-close" style="margin-top:auto">'+esc(d.close)+'</p>'+
+     '<div class="d-folio">2</div></div></div>';
+}
+
+function renderStage(){
+  var view=document.getElementById("stageview");
+  if(!view||typeof DEMO==="undefined"||!DEMO||!DEMO[current]){return;}
+  if(!vSel||!fSel||!VKEY[vSel]){return;}
+  var key=VKEY[vSel],d=DEMO[current][key],w=WHY[current][key];
+  if(!d){return;}
+  var vis=(typeof VIS!=="undefined"&&VIS[key])?VIS[key]:[];
+  view.innerHTML = fSel==="Reel"?viewReel(d,vis):(fSel==="Edition"?viewEdition(d,vis):viewBrief(d,vis));
+  startMotion(view);
+
+  var name=document.getElementById("comboName");
+  var token=document.getElementById("comboToken");
+  if(name){name.textContent=vSel+" "+fSel;}
+  if(token){token.innerHTML=vSel.toLowerCase()+'<span class="dot">.</span>'+fSel.toLowerCase();}
+
+  var note=document.getElementById("stagenote");
+  if(note){note.textContent=tx(FNOTE[fSel][0])+" — "+tx(FNOTE[fSel][1]);}
+
+  var h=document.getElementById("whyH"),pp=document.getElementById("whyP"),ul=document.getElementById("whyO");
+  if(h&&w){h.textContent=w.h;pp.textContent=w.p;
+    var li="";for(var i=0;i<w.o.length;i++){li+="<li>"+esc(w.o[i])+"</li>";}
+    ul.innerHTML=li;}
+}
+
+(function(){
+  var vChips=document.querySelectorAll("[data-v]");
+  var fChips=document.querySelectorAll("[data-f]");
+  function bind(list,attr,set){
+    for(var i=0;i<list.length;i++){
+      (function(el){
+        el.addEventListener("click",function(){
+          for(var j=0;j<list.length;j++){list[j].setAttribute("aria-pressed","false");}
+          el.setAttribute("aria-pressed","true");
+          set(el.getAttribute(attr));reelIdx=0;renderStage();
+        });
+      })(list[i]);
+    }
+  }
+  bind(vChips,"data-v",function(v){vSel=v;});
+  bind(fChips,"data-f",function(f){fSel=f;});
+  var view=document.getElementById("stageview");
+  if(view){
+    view.addEventListener("click",function(e){
+      var b=e.target.closest?e.target.closest("[data-reel]"):null;
+      if(!b){return;}
+      var dir=b.getAttribute("data-reel");
+      var wasButton=b.tagName==="BUTTON";
+      reelIdx+=parseInt(dir,10);
+      renderStage();
+      if(wasButton){
+        var again=view.querySelector('.d-reelnav [data-reel="'+dir+'"]');
+        if(again){try{again.focus();}catch(err){}}
+      }
+    });
+  }
+  renderStage();
+})();
+
+})();
+</script>
+</body>
+</html>
+"""
+
+out = TPL.replace("__DOCS__", doc_html()).replace("__STAGEINIT__", STAGE_INIT)
+_root = pathlib.Path(__file__).resolve().parent
+if _root.name == "source":
+    _root = _root.parent
+_out = _root / "versions" / "quiet"
+_out.mkdir(parents=True, exist_ok=True)
+(_out / "index.html").write_text(out, encoding="utf-8")
+print("written", len(out), "bytes")

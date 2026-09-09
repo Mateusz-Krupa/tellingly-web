@@ -1,0 +1,13 @@
+.git
+.DS_Store
+.opencode
+openspec
+dist
+versions
+source
+_transfer.tar.gz
+*.tar.gz
+index.html
+build-audit.html
+direction-3d.html
+README.md

@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tellingly — Der Abdruck. 3D Creative Direction.</title>
+<meta name="theme-color" content="#0B0A09">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --kohle-0:#0B0A09; --kohle-1:#17150F; --kohle-2:#241F17;
+  --ton-0:#7A5636;  --ton-1:#A8794E;  --ton-2:#D3A672;
+  --papier-0:#C9C4B6; --papier-1:#E8E4D8; --papier-2:#FBF8F0;
+  --graphit-0:#101112; --graphit-1:#2A2C2E; --graphit-2:#4C5052;
+  --licht-0:#FFCF9A; --licht-1:#FFE8C6;
+  --amt:#2C4A63;
+  --ink:#EDE7DC; --soft:#9A948A; --line:#26221C;
+  --serif:"Source Serif 4",Charter,Georgia,serif;
+  --sans:"Archivo",-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  margin:0;background:var(--kohle-0);color:var(--ink);
+  font-family:var(--serif);font-size:17px;line-height:1.62;
+  font-variant-numeric:oldstyle-nums;
+}
+body:before{
+  content:"";position:fixed;inset:0;z-index:99;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
+}
+.wrap{width:min(1240px,100% - 2*clamp(20px,5vw,72px));margin-inline:auto}
+h1,h2,h3,h4{font-weight:400;margin:0;letter-spacing:-0.025em;line-height:1.06}
+p{margin:0 0 1.05em}
+a{color:var(--ton-2)}
+:focus-visible{outline:2px solid var(--ton-2);outline-offset:3px}
+
+/* ---------- hero ---------- */
+#hero{position:relative;height:100svh;min-height:600px;overflow:hidden;background:var(--kohle-0)}
+#gl{position:absolute;inset:0;display:block;width:100%;height:100%}
+.hero-fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center}
+.hero-fallback i{
+  display:block;width:min(340px,52vw);aspect-ratio:3/4;border-radius:2px;
+  background:linear-gradient(112deg,#2A2318,#7A5636 42%,#C9C4B6 78%,#4A4137);
+  box-shadow:0 60px 120px -60px #000;
+}
+.hero-veil{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 46%,transparent 40%,rgba(6,5,4,.72) 100%);
+}
+.hero-type{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;padding:clamp(20px,4vh,44px) 0}
+.hero-top,.hero-bot{display:flex;justify-content:space-between;align-items:flex-end;gap:24px}
+.eyebrow{font:400 11.5px/1.5 var(--mono);letter-spacing:.22em;color:var(--ton-2);margin:0}
+.hero-line{
+  font-size:clamp(30px,5.4vw,78px);line-height:1.02;letter-spacing:-0.035em;max-width:15ch;
+  text-wrap:balance;
+}
+.hero-line em{font-style:italic;color:var(--licht-1)}
+.hero-sub{margin:0;max-width:38ch;color:var(--soft);font-size:clamp(15px,1.2vw,18px)}
+.hero-meta{font:400 11px/1.7 var(--mono);color:var(--soft);text-align:right;letter-spacing:.06em}
+.hero-cta{
+  pointer-events:auto;display:inline-block;text-decoration:none;color:var(--kohle-0);
+  background:var(--licht-1);padding:13px 24px;border-radius:2px;font-family:var(--sans);
+  font-size:15px;font-weight:500;letter-spacing:.01em;
+}
+.hint{font:400 10.5px/1 var(--mono);letter-spacing:.2em;color:var(--soft)}
+
+/* ---------- structure ---------- */
+section.sheet{border-top:1px solid var(--line);padding:clamp(56px,9vh,120px) 0}
+.grid{display:grid;grid-template-columns:16ch minmax(0,1fr);gap:clamp(20px,4vw,72px)}
+.marg{margin:0;font:400 11.5px/1.6 var(--mono);letter-spacing:.14em;color:var(--soft)}
+.marg b{display:block;color:var(--ton-2);font-weight:400}
+h2{font-size:clamp(28px,3.6vw,50px);max-width:20ch;margin-bottom:.5em}
+h3{font-size:clamp(19px,1.8vw,25px);margin:2.2em 0 .5em}
+h4{font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.02em;margin:0 0 .5em}
+.lead{font-size:clamp(19px,1.7vw,24px);line-height:1.42;max-width:34ch;color:var(--ink)}
+.body{max-width:66ch}
+.body p{color:#CFC8BC}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:clamp(20px,2.6vw,40px)}
+.cols3{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:clamp(16px,2vw,28px)}
+.card{border:1px solid var(--line);padding:22px;border-radius:2px;background:#0F0D0B}
+.card p{margin:0;font-size:15px;color:var(--soft)}
+.card p + p{margin-top:.7em}
+dl{margin:0}
+.spec{display:grid;grid-template-columns:auto 1fr;gap:6px 20px;font:400 13px/1.7 var(--mono);color:#BDB6AA;margin:14px 0 0}
+.spec dt{color:var(--soft)}
+.spec dd{margin:0;text-align:left}
+.grid > *{min-width:0}
+.tw{overflow-x:auto;max-width:100%;margin-top:22px;-webkit-overflow-scrolling:touch}
+table{width:100%;min-width:600px;border-collapse:collapse;font-size:15px}
+th{text-align:left;font:400 11.5px/1.5 var(--mono);letter-spacing:.1em;color:var(--soft);padding:0 16px 10px 0;border-bottom:1px solid var(--line);vertical-align:bottom}
+td{padding:14px 16px 14px 0;border-bottom:1px solid #1A1712;vertical-align:top;color:#CFC8BC}
+td:first-child{color:var(--ink);white-space:nowrap;padding-right:26px}
+td.n{font-family:var(--mono);font-size:13px;color:var(--ton-2);white-space:nowrap}
+ul.plain{margin:0;padding:0;list-style:none}
+ul.plain li{padding:10px 0 10px 22px;border-top:1px solid #1A1712;position:relative;color:#CFC8BC}
+ul.plain li:before{content:"";position:absolute;left:0;top:22px;width:10px;height:1px;background:var(--ton-1)}
+ul.no li:before{background:#5A3B3B}
+.quote{font-size:clamp(21px,2.4vw,32px);line-height:1.2;letter-spacing:-0.02em;border-left:2px solid var(--ton-1);padding-left:22px;max-width:26ch;margin:1.6em 0}
+
+/* ---------- swatches ---------- */
+.sw{border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.sw .bars{display:flex;height:96px}
+.sw .bars i{flex:1}
+.sw .meta{padding:12px 14px;font:400 11px/1.7 var(--mono);color:var(--soft)}
+.sw .meta b{display:block;color:var(--ink);font-weight:400;font-size:12.5px;letter-spacing:.08em;margin-bottom:4px}
+
+/* ---------- material studies ---------- */
+.mat{position:relative;border:1px solid var(--line);border-radius:2px;aspect-ratio:4/3;overflow:hidden}
+.mat:after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(104deg,rgba(255,231,198,0) 34%,rgba(255,231,198,.16) 48%,rgba(255,231,198,0) 62%);
+  transform:translateX(-30%);transition:transform 1.1s cubic-bezier(.16,1,.3,1);
+}
+.mat:hover:after{transform:translateX(30%)}
+.mat span{
+  position:absolute;left:12px;bottom:10px;font:400 10.5px/1 var(--mono);letter-spacing:.14em;
+  color:rgba(255,255,255,.7);mix-blend-mode:difference;
+}
+.m-ton{background:
+  radial-gradient(120% 90% at 18% 8%,#D3A672,transparent 58%),
+  linear-gradient(160deg,#A8794E,#6A4A2E);
+  box-shadow:inset 0 0 60px rgba(0,0,0,.4)}
+.m-papier{background:
+  radial-gradient(110% 80% at 14% 6%,#FBF8F0,transparent 60%),
+  linear-gradient(158deg,#E8E4D8,#B7B1A2);
+  box-shadow:inset 0 0 50px rgba(0,0,0,.22)}
+.m-graphit{background:
+  radial-gradient(90% 70% at 22% 10%,#6A6E72,transparent 55%),
+  linear-gradient(160deg,#2A2C2E,#0E0F10);
+  box-shadow:inset 0 0 60px rgba(0,0,0,.6)}
+.mat.grain:before{
+  content:"";position:absolute;inset:0;opacity:.22;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2'/></filter><rect width='120' height='120' filter='url(%23f)'/></svg>");
+}
+
+/* ---------- specimens ---------- */
+.spec-block{border:1px solid var(--line);border-radius:2px;padding:26px;background:#0E0C0A}
+.sp-display{font-family:var(--serif);font-size:clamp(38px,5vw,68px);line-height:.98;letter-spacing:-0.035em;margin:0}
+.sp-text{font-family:var(--serif);font-size:19px;line-height:1.55;margin:14px 0 0;color:#CFC8BC;max-width:52ch}
+.sp-ui{font-family:var(--sans);font-size:15px;letter-spacing:.005em;margin:14px 0 0;color:#CFC8BC}
+.sp-mono{font-family:var(--mono);font-size:13px;letter-spacing:.04em;margin:14px 0 0;color:var(--ton-2)}
+.sp-note{font:400 11px/1.7 var(--mono);color:var(--soft);margin-top:16px;letter-spacing:.04em}
+
+/* ---------- diagrams ---------- */
+.dia{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:2px;background:#0D0B09}
+.dia{max-width:100%}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:22px}
+.frame{border:1px solid var(--line);border-radius:2px;background:#0D0B09;padding:10px}
+.frame svg{width:100%;height:auto;display:block}
+.frame p{margin:10px 0 0;font:400 10.5px/1.6 var(--mono);color:var(--soft);letter-spacing:.06em}
+
+.foot{border-top:1px solid var(--line);padding:34px 0 60px;font:400 12px/1.8 var(--mono);color:var(--soft);letter-spacing:.06em}
+.foot p{margin:0}
+
+@media (max-width:820px){
+  .grid{grid-template-columns:1fr;gap:12px}
+  .marg{order:-1}
+  .hero-top,.hero-bot{flex-direction:column;align-items:flex-start}
+  .hero-meta{text-align:left}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================ HERO ============================ -->
+<section id="hero">
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div class="hero-fallback" id="fallback" aria-hidden="true"><i></i></div>
+  <div class="hero-veil" aria-hidden="true"></div>
+  <div class="hero-type">
+    <div class="wrap hero-top">
+      <p class="eyebrow">Tellingly — Creative Direction 3D</p>
+      <p class="hero-meta">Der Abdruck<br>ein Körper, vier Zustände<br>v1 · 2026</p>
+    </div>
+    <div class="wrap hero-bot">
+      <div>
+        <h1 class="hero-line">Was eingedrückt wurde, sieht man nur im <em>streifenden</em> Licht.</h1>
+        <p class="hero-sub">Bewegen Sie den Zeiger. Sie verschieben damit die Lichtquelle — und erst in einem bestimmten Winkel wird die Schrift auf dem Körper lesbar. Das ist keine Spielerei, das ist die These der Firma als Mechanik.</p>
+        <p style="margin-top:22px"><a class="hero-cta" href="#architektur">Zur Architektur</a></p>
+      </div>
+      <p class="hint">SCROLL</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 00 KONZEPT ============================ -->
+<section class="sheet" id="konzept">
+  <div class="wrap grid">
+    <p class="marg"><b>00</b>Konzept</p>
+    <div>
+      <h2>Der Abdruck.</h2>
+      <p class="lead">Jede Schrift ist eine Verformung von Material. Der Griffel in den nassen Ton, die Type in das Papier, die Kuppe auf das Glas. «Abdruck» heisst beides: die Vertiefung — und der Eindruck, den etwas hinterlässt. Genau dazwischen liegt das Geschäft dieser Firma.</p>
+      <div class="body" style="margin-top:34px">
+        <p>Die Website ist deshalb kein Raum voller schwebender Objekte. Sie ist <strong>ein einziger Körper</strong>, den eine Kamera über fünftausend Jahre begleitet. Der Körper wechselt nicht die Form, sondern das Material: nasser Ton, gepresstes Papier, kaltes Amtsdokument, zuletzt eine leuchtende Fläche. Dieselbe Geometrie, vier Zustände.</p>
+        <p>Daraus folgt die härteste Regel des ganzen Systems: <strong>Licht ist nicht Stimmung, Licht ist Argument.</strong> Eine Tontafel im Flachlicht ist unlesbar. Erst ein streifender Einfall wirft die Kanten der Keile in den Schatten und macht die Zeichen sichtbar. Unsere Seite verhält sich genauso — man muss das Licht finden, um die Daten zu lesen. Wer das erlebt hat, hat die Argumentation der Firma verstanden, bevor er einen Satz davon gelesen hat.</p>
+      </div>
+      <p class="quote">Ein Körper. Vier Zustände. Eine Lichtquelle, die alles entscheidet.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 01 NARRATIV ============================ -->
+<section class="sheet" id="narrativ">
+  <div class="wrap grid">
+    <p class="marg"><b>01</b>Visuelles Narrativ</p>
+    <div>
+      <h2>Fünf Sätze, eine Einstellung.</h2>
+      <p class="lead">Es gibt keinen Schnitt. Die Kamera fährt einmal durch, das Material unter ihr wechselt.</p>
+      <div class="tw"><table>
+        <thead><tr><th>Bewegung</th><th>Zustand des Körpers</th><th>Was die Kamera tut</th><th>Satz</th></tr></thead>
+        <tbody>
+          <tr><td>I — Feuer</td><td>Roher Stein, warm, grob. Ein Handabdruck, dreizehn Kerben.</td><td>Steht still, atmet. Das Licht flackert, nicht die Kamera.</td><td>Jemand war hier. Jemand hat gezählt.</td></tr>
+          <tr><td>II — Uruk</td><td>Nasser Ton. Weich, subsurface, dunkler in den Vertiefungen.</td><td>Senkt sich 14° über die Fläche, streift die Zeichen an.</td><td>Die erste Schrift war eine Abrechnung.</td></tr>
+          <tr><td>III — Drift</td><td>Der Körper spaltet sich: links Papierstapel, rechts leerer Raum.</td><td>Zieht zurück, das einzige Mal. Weitwinkel, kalt.</td><td>Das Buch wurde genauer, die Erzählung verschwand.</td></tr>
+          <tr><td>IV — Heute</td><td>Kaltgepresstes Amtspapier. Flaches Licht, kein Schatten, nichts lesbar.</td><td>Frontal, klinisch, 0° Neigung. Bewusst hässlich.</td><td>Genau, vollständig, ungeöffnet.</td></tr>
+          <tr><td>V — Öffnung</td><td>Die Fläche wird von innen leuchtend. Papier, das Licht durchlässt.</td><td>Hebt sich auf Augenhöhe. Das Objekt kommt zur Linse, nicht umgekehrt.</td><td>Wir setzen die beiden wieder zusammen.</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:26px;color:#CFC8BC;max-width:60ch">Akt IV ist absichtlich das visuell schwächste Bild der ganzen Seite. Flaches Licht, kein Kontrast, keine Tiefe. Der Bruch ist die Botschaft: so sieht das aus, was Ihre Empfänger heute bekommen.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 02 ART DIRECTION ============================ -->
+<section class="sheet" id="ad">
+  <div class="wrap grid">
+    <p class="marg"><b>02</b>Art Direction</p>
+    <div>
+      <h2>Was gilt — und was wir nicht anfassen.</h2>
+      <div class="cols2" style="margin-top:30px">
+        <div>
+          <h4 style="color:var(--ton-2)">Prinzipien</h4>
+          <ul class="plain">
+            <li><strong>Ein Objekt.</strong> Nie zwei Dinge gleichzeitig im Fokus. Die Seite ist eine Vitrine, kein Schaufenster.</li>
+            <li><strong>Material vor Farbe.</strong> Farbwerte sind Albedo eines Stoffs, nicht Marken-Swatches. Wer den Stoff kennt, kennt die Farbe.</li>
+            <li><strong>Licht macht lesbar.</strong> Jede Information im 3D-Raum entsteht durch Schattenkante, nicht durch Kontur.</li>
+            <li><strong>Schrift bleibt flach.</strong> Unsere Sprache liegt als 2D-Ebene vor der Szene. Nur die Schrift des Artefakts ist dreidimensional.</li>
+            <li><strong>Die Kamera hat drei Bewegungen</strong>, sonst keine. Kein freies Orbit, keine Rolle.</li>
+            <li><strong>Stille als Rhythmus.</strong> Zwischen zwei Bewegungen steht immer eine Sekunde, in der nichts passiert.</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="color:#8E5F5F">Ausdrücklich verboten</h4>
+          <ul class="plain no">
+            <li>Glas, Chrom, Irisieren, Seifenblasenmaterial. Nichts in dieser Firma ist glänzend.</li>
+            <li>Gradient-Meshes, Blobs, «Aurora»-Hintergründe, Farbverlauf-Nebel.</li>
+            <li>Frei rotierende Objekte, Orbit-Controls, alles was nach 3D-Konfigurator aussieht.</li>
+            <li>Bloom über Schwellenwert, Lens Flares, anamorphe Streifen.</li>
+            <li>Schwebender Text im 3D-Raum, extrudierte Wortmarken, 3D-Icons.</li>
+            <li>Partikel als Dekoration. Staub gibt es nur, wo ein Lichtstrahl ihn sichtbar macht.</li>
+            <li>Dark Mode als Stilmittel ohne Grund. Dunkel ist hier eine Höhle, kein Trend.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 03 KOMPOSITION ============================ -->
+<section class="sheet" id="komposition">
+  <div class="wrap grid">
+    <p class="marg"><b>03</b>Komposition</p>
+    <div>
+      <h2>Das Objekt sitzt tief.</h2>
+      <p class="lead">Der Körper liegt auf der unteren Drittellinie, nie zentriert. Über ihm bleibt Luft — der Raum, in den das Licht fällt. Das erzeugt Ehrfurcht statt Produktpräsentation.</p>
+      <div class="cols2" style="margin-top:32px">
+        <div class="card">
+          <h4>Raster</h4>
+          <p>12 Spalten, 96 px Gutter bei 1440. Der Textkörper hält 66 Zeichen. Die Marginalspalte (16ch) trägt Nummer und Sektionsname in Mono — die einzige Stelle, an der die Seite sich selbst kommentiert.</p>
+        </div>
+        <div class="card">
+          <h4>Sichere Zone</h4>
+          <p>Das 3D-Objekt bleibt innerhalb 62 % der Höhe und 54 % der Breite. Alles ausserhalb gehört der Schrift und dem Verfall ins Schwarz. Auf Mobil kippt das Verhältnis auf 78 % / 86 %, die Schrift rückt unter das Objekt.</p>
+        </div>
+        <div class="card">
+          <h4>Blickführung</h4>
+          <p>Lichtkante oben links → Zahl in der Mitte → Satz unten links → CTA rechts unten. Ein Z, gegen den Uhrzeigersinn abgebremst. Nie zwei Helligkeitsspitzen gleichzeitig.</p>
+        </div>
+        <div class="card">
+          <h4>Negativer Raum</h4>
+          <p>Mindestens 38 % der Fläche bleibt unbelichtet. Schwarz ist hier kein Hintergrund, sondern Material — der Raum, in dem der Körper liegt.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 04 TYPOGRAFIE ============================ -->
+<section class="sheet" id="typo">
+  <div class="wrap grid">
+    <p class="marg"><b>04</b>Typografie</p>
+    <div>
+      <h2>Zwei Ebenen: eingedrückt und gesetzt.</h2>
+      <p class="lead">Die Schrift des Artefakts lebt im 3D-Raum und wird vom selben Licht getroffen wie das Material. Unsere eigene Schrift liegt strikt davor, flach, bildschirmscharf. Diese Trennung ist inhaltlich: das eine ist der Beleg, das andere sind wir.</p>
+
+      <div class="spec-block" style="margin-top:30px">
+        <p class="sp-display">Der Abdruck</p>
+        <p class="sp-text">Eingedrückte Ebene — geflammte Serifen, mittlerer Kontrast, kräftige Stammenden. Diese Form überlebt streifendes Licht: ihre Kanten werfen bei 8° Einfall noch einen lesbaren Schatten. Eine Didone würde in derselben Beleuchtung verschwinden.</p>
+        <p class="sp-ui">Gesetzte Ebene — Grotesk, 15/1.5, für Navigation, Schaltflächen, Beschriftungen. Neutral bis zur Unsichtbarkeit, damit sie nie mit dem Artefakt konkurriert.</p>
+        <p class="sp-mono">FIGURENEBENE — MONO, TABULAR, +0.04EM · 301 662 · −3.12 % · 1494</p>
+        <p class="sp-note">Produktions-Spezifikation: <strong>GT Alpina</strong> (Grilli Type, Zürich) für die eingedrückte Ebene — gemeisselte, geflammte Formen, Schweizer Foundry, inhaltlich am Thema. <strong>GT America</strong> oder <strong>Söhne</strong> für die gesetzte Ebene. <strong>Söhne Mono</strong> für Figuren. Die Muster hier sind mit frei lizenzierten Stellvertretern gesetzt (Source Serif 4, Archivo, IBM Plex Mono), weil die Lizenzen erst mit dem Projekt gekauft werden.</p>
+      </div>
+
+      <div class="tw"><table>
+        <thead><tr><th>Rolle</th><th>Schnitt</th><th>Grösse / Zeile</th><th>Laufweite</th></tr></thead>
+        <tbody>
+          <tr><td>Hero</td><td>Alpina Light</td><td class="n">clamp(30, 5.4vw, 78) / 1.02</td><td class="n">−0.035em</td></tr>
+          <tr><td>Sektionstitel</td><td>Alpina Regular</td><td class="n">clamp(28, 3.6vw, 50) / 1.06</td><td class="n">−0.025em</td></tr>
+          <tr><td>Lead</td><td>Alpina Regular</td><td class="n">clamp(19, 1.7vw, 24) / 1.42</td><td class="n">0</td></tr>
+          <tr><td>Fliesstext</td><td>Alpina Regular</td><td class="n">17 / 1.62, max 66ch</td><td class="n">0</td></tr>
+          <tr><td>Interface</td><td>GT America Medium</td><td class="n">15 / 1.5</td><td class="n">+0.005em</td></tr>
+          <tr><td>Figuren, Marginalien</td><td>Söhne Mono</td><td class="n">11–13 / 1.7</td><td class="n">+0.04 … +0.22em</td></tr>
+          <tr><td>Auf dem Artefakt</td><td>Alpina Regular, als Höhenkarte</td><td class="n">9–11 px im Textur-Raum</td><td class="n">0</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 05 FARBE ============================ -->
+<section class="sheet" id="farbe">
+  <div class="wrap grid">
+    <p class="marg"><b>05</b>Farbe</p>
+    <div>
+      <h2>Keine Palette. Fünf Substanzen.</h2>
+      <p class="lead">Jede Farbe ist als Stoff definiert und in drei Lichtstufen notiert: im Schatten, im Umgebungslicht, im Strahl. So denkt eine 3D-Regie — nicht in Swatches, sondern in Albedo.</p>
+      <div class="cols3" style="margin-top:30px">
+        <div class="sw"><div class="bars"><i style="background:#0B0A09"></i><i style="background:#17150F"></i><i style="background:#241F17"></i></div>
+          <p class="meta"><b>KOHLE</b>#0B0A09 · #17150F · #241F17<br>Der Raum. Nie als Fläche gedacht, immer als Tiefe.</p></div>
+        <div class="sw"><div class="bars"><i style="background:#7A5636"></i><i style="background:#A8794E"></i><i style="background:#D3A672"></i></div>
+          <p class="meta"><b>TON</b>#7A5636 · #A8794E · #D3A672<br>Uruk. Warm, staubig, leicht durchscheinend an der Kante.</p></div>
+        <div class="sw"><div class="bars"><i style="background:#C9C4B6"></i><i style="background:#E8E4D8"></i><i style="background:#FBF8F0"></i></div>
+          <p class="meta"><b>PAPIER</b>#C9C4B6 · #E8E4D8 · #FBF8F0<br>Heute und morgen. Faserig, nie reinweiss.</p></div>
+        <div class="sw"><div class="bars"><i style="background:#101112"></i><i style="background:#2A2C2E"></i><i style="background:#4C5052"></i></div>
+          <p class="meta"><b>GRAPHIT</b>#101112 · #2A2C2E · #4C5052<br>Die Marke selbst. Der einzige Stoff mit Glanz — und nur bei 3 %.</p></div>
+        <div class="sw"><div class="bars"><i style="background:#FFCF9A"></i><i style="background:#FFE8C6"></i><i style="background:#FFF6E6"></i></div>
+          <p class="meta"><b>LICHT</b>#FFCF9A · #FFE8C6<br>Nur emissiv. Kommt nie als Füllfarbe vor, niemals als Text auf Fläche.</p></div>
+        <div class="sw"><div class="bars"><i style="background:#2C4A63"></i><i style="background:#1E3244"></i><i style="background:#16283A"></i></div>
+          <p class="meta"><b>AMT-BLAU</b>#2C4A63<br>Einmal auf der ganzen Seite: der Moment «ungeöffnet». Danach nie wieder.</p></div>
+      </div>
+      <p style="margin-top:26px;color:var(--soft);font:400 13px/1.7 var(--mono)">Kontrast: Fliesstext #CFC8BC auf #0B0A09 = 11.4:1 · Sekundärtext #9A948A = 6.2:1 · Ton-2 auf Kohle = 7.8:1. Alle über AA, Fliesstext über AAA.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 06 MATERIAL ============================ -->
+<section class="sheet" id="material">
+  <div class="wrap grid">
+    <p class="marg"><b>06</b>Material</p>
+    <div>
+      <h2>Drei Oberflächen, physikalisch begründet.</h2>
+      <p class="lead">Alles ist rau. Nichts spiegelt die Umgebung. Der einzige Glanz im ganzen Projekt sitzt auf der Marke selbst — dort, wo Graphit auf Papier liegt.</p>
+      <div class="cols3" style="margin-top:30px">
+        <div class="mat m-ton grain"><span>TON — UNGEBRANNT</span></div>
+        <div class="mat m-papier grain"><span>PAPIER — KALTGEPRESST</span></div>
+        <div class="mat m-graphit grain"><span>GRAPHIT — DIE MARKE</span></div>
+      </div>
+      <div class="cols3" style="margin-top:22px">
+        <div class="card"><h4>Ton</h4>
+          <dl class="spec">
+            <dt>Roughness</dt><dd>0.88</dd>
+            <dt>Metalness</dt><dd>0.0</dd>
+            <dt>Subsurface</dt><dd>0.22, Radius 3 mm, warm</dd>
+            <dt>Normal</dt><dd>Fingerspuren, 0.6</dd>
+            <dt>Höhenkarte</dt><dd>Keilschrift, 1.4 mm tief</dd>
+          </dl></div>
+        <div class="card"><h4>Papier</h4>
+          <dl class="spec">
+            <dt>Roughness</dt><dd>0.94</dd>
+            <dt>Metalness</dt><dd>0.0</dd>
+            <dt>Transmission</dt><dd>0.06, nur an Kanten sichtbar</dd>
+            <dt>Normal</dt><dd>Faserstruktur, 0.35, anisotrop</dd>
+            <dt>Höhenkarte</dt><dd>Prägung, 0.18 mm</dd>
+          </dl></div>
+        <div class="card"><h4>Graphit</h4>
+          <dl class="spec">
+            <dt>Roughness</dt><dd>0.41</dd>
+            <dt>Metalness</dt><dd>0.0</dd>
+            <dt>Clearcoat</dt><dd>0.03 — der einzige Glanz im Projekt</dd>
+            <dt>Normal</dt><dd>Korn, 0.2</dd>
+            <dt>Rolle</dt><dd>nur Schrift, nie Fläche</dd>
+          </dl></div>
+      </div>
+      <p style="margin-top:26px;color:#CFC8BC;max-width:62ch">Die Schrift ist nie eine aufgeklebte Textur. Sie ist immer eine <strong>Höhenkarte</strong> — deshalb reagiert sie auf Licht, deshalb verschwindet sie im Flachlicht, deshalb funktioniert der Hero.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 07 LICHT ============================ -->
+<section class="sheet" id="licht">
+  <div class="wrap grid">
+    <p class="marg"><b>07</b>Licht</p>
+    <div>
+      <h2>Eine Quelle. Acht Grad.</h2>
+      <p class="lead">Streifendes Licht ist die gesamte Bildsprache. Es kommt tief von links, mit der Farbe eines Feuers in Akt I und der Farbe eines Nordfensters in Akt V.</p>
+      <svg class="dia" viewBox="0 0 900 300" role="img" aria-label="Lichtplan: Seitenansicht und Draufsicht">
+        <g fill="none" stroke="#3A342B" stroke-width="1">
+          <line x1="60" y1="220" x2="420" y2="220"/><line x1="500" y1="60" x2="500" y2="260"/>
+        </g>
+        <text x="60" y="42" fill="#9A948A" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="2">SEITENANSICHT</text>
+        <text x="520" y="42" fill="#9A948A" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="2">DRAUFSICHT</text>
+        <!-- side -->
+        <rect x="180" y="210" width="150" height="10" fill="#A8794E"/>
+        <circle cx="90" cy="188" r="7" fill="#FFCF9A"/>
+        <path d="M97 190 L250 214" stroke="#FFCF9A" stroke-width="1.2" opacity=".85"/>
+        <path d="M97 193 L250 217" stroke="#FFCF9A" stroke-width=".8" opacity=".45"/>
+        <path d="M97 186 L250 211" stroke="#FFCF9A" stroke-width=".8" opacity=".45"/>
+        <path d="M250 214 L392 205" stroke="#3A342B" stroke-width="1" stroke-dasharray="3 4"/>
+        <text x="255" y="200" fill="#D3A672" font-family="IBM Plex Mono, monospace" font-size="11">8°</text>
+        <text x="60" y="172" fill="#9A948A" font-family="IBM Plex Mono, monospace" font-size="10">KEY 3200 K</text>
+        <circle cx="360" cy="120" r="5" fill="#5A6A78"/>
+        <path d="M356 124 L300 200" stroke="#5A6A78" stroke-width=".8" opacity=".5"/>
+        <text x="330" y="108" fill="#9A948A" font-family="IBM Plex Mono, monospace" font-size="10">FILL 6500 K · 4 %</text>
+        <text x="180" y="248" fill="#9A948A" font-family="IBM Plex Mono, monospace" font-size="10">KÖRPER</text>
+        <!-- top -->
+        <rect x="640" y="140" width="120" height="80" fill="none" stroke="#A8794E" stroke-width="1.2"/>
+        <circle cx="580" cy="180" r="6" fill="#FFCF9A"/>
+        <path d="M586 180 L640 180" stroke="#FFCF9A" stroke-width="1.2"/>
+        <path d="M586 180 L648 152" stroke="#FFCF9A" stroke-width=".7" opacity=".4" stroke-dasharray="3 3"/>
+        <path d="M586 180 L648 210" stroke="#FFCF9A" stroke-width=".7" opacity=".4" stroke-dasharray="3 3"/>
+        <text x="560" y="152" fill="#D3A672" font-family="IBM Plex Mono, monospace" font-size="11">±22° Rake</text>
+        <text x="640" y="248" fill="#9A948A" font-family="IBM Plex Mono, monospace" font-size="10">der Zeiger bewegt nur diesen Winkel</text>
+      </svg>
+      <div class="tw"><table>
+        <thead><tr><th>Quelle</th><th>Typ</th><th>Farbe / Temperatur</th><th>Intensität</th><th>Funktion</th></tr></thead>
+        <tbody>
+          <tr><td>Key</td><td>Directional, Schatten 2048²</td><td class="n">#FFCF9A · 3200 K</td><td class="n">2.4</td><td>Erzeugt die Schattenkante — macht Schrift lesbar</td></tr>
+          <tr><td>Fill</td><td>Hemisphere</td><td class="n">#5A6A78 · 6500 K</td><td class="n">0.10</td><td>Trennt Körper vom Schwarz, sonst nichts</td></tr>
+          <tr><td>Rim</td><td>Directional, kein Schatten</td><td class="n">#FFE8C6</td><td class="n">0.35</td><td>Nur in Akt V: die Kante der geöffneten Fläche</td></tr>
+          <tr><td>Bounce</td><td>keiner</td><td class="n">—</td><td class="n">0</td><td>Bewusst weggelassen. Die Höhle wirft nichts zurück.</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:24px;color:#CFC8BC;max-width:62ch">In Akt IV wird der Key auf 62° gehoben und auf 5600 K entfärbt: flaches Neonlicht eines Grossraumbüros. Die Schrift verschwindet in derselben Sekunde. Das ist der stärkste Moment der Seite und er kostet nur einen Winkel.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 08 TIEFE ============================ -->
+<section class="sheet" id="tiefe">
+  <div class="wrap grid">
+    <p class="marg"><b>08</b>Tiefe &amp; Atmosphäre</p>
+    <div>
+      <h2>Drei Ebenen plus eine, die nicht dazugehört.</h2>
+      <div class="cols2" style="margin-top:28px">
+        <div class="card"><h4>Grund — z −6 bis −14</h4><p>Der Raum. Immer unscharf (Bokeh 11 px), nie beschrieben. Trägt nur Staub und Schwarz.</p></div>
+        <div class="card"><h4>Körper — z −1.5 bis +0.6</h4><p>Der einzige scharfe Bereich. Fokusebene liegt fest auf der Vorderkante des Objekts, Blende f/2.4 äquivalent.</p></div>
+        <div class="card"><h4>Luft — z 0 bis +4</h4><p>420 Staubkörner, nur innerhalb des Lichtkegels sichtbar. Driftgeschwindigkeit 0.6 px/s. Nie über den Text.</p></div>
+        <div class="card"><h4>Schrift — vor der Linse</h4><p>2D-Overlay, keine Parallaxe, keine Unschärfe, kein Schatten. Sie gehört uns, nicht dem Raum.</p></div>
+      </div>
+      <dl class="spec" style="margin-top:28px;max-width:640px">
+        <dt>Film-Korn</dt><dd>0.05 Opazität, 180 px Kachel, liegt in der Linse — nicht auf der Seite, scrollt nicht mit</dd>
+        <dt>Vignette</dt><dd>radial, 40 % → 100 %, Mitte bei 50/46</dd>
+        <dt>Tone Mapping</dt><dd>ACES Filmic, Exposure 1.05</dd>
+        <dt>Bloom</dt><dd>Schwelle 0.92, Stärke 0.18 — nur die Kante in Akt V erreicht sie</dd>
+        <dt>Chromatik</dt><dd>+2 % Wärme zur Lichtquelle hin, keine Aberration</dd>
+        <dt>Nebel</dt><dd>exponentiell, Dichte 0.028, Farbe #0B0A09 — verschluckt alles jenseits z −16</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 09 KAMERA ============================ -->
+<section class="sheet" id="kamera">
+  <div class="wrap grid">
+    <p class="marg"><b>09</b>Kamerasprache</p>
+    <div>
+      <h2>Drei Bewegungen. Mehr gibt es nicht.</h2>
+      <p class="lead">Kein Orbit, kein Zoom, keine Rolle. Eine feste Brennweite, wie in einer Vitrine gefilmt: 35 mm Äquivalent, FOV 28°.</p>
+      <div class="board">
+        <div class="frame">
+          <svg viewBox="0 0 160 100"><rect x="1" y="1" width="158" height="98" fill="none" stroke="#26221C"/>
+            <rect x="46" y="58" width="68" height="24" fill="#3A2E22"/><circle cx="20" cy="50" r="4" fill="#FFCF9A"/>
+            <path d="M24 52 L46 66" stroke="#FFCF9A" stroke-width=".8"/></svg>
+          <p>01 ANNÄHERUNG<br>Dolly −3.2 z, 4 s</p>
+        </div>
+        <div class="frame">
+          <svg viewBox="0 0 160 100"><rect x="1" y="1" width="158" height="98" fill="none" stroke="#26221C"/>
+            <rect x="40" y="52" width="80" height="30" fill="#4A3A28"/>
+            <path d="M20 40 Q80 24 140 40" stroke="#D3A672" stroke-width=".9" fill="none" stroke-dasharray="3 3"/>
+            <circle cx="20" cy="40" r="3.5" fill="#FFCF9A"/><circle cx="140" cy="40" r="3.5" fill="#FFCF9A" opacity=".4"/></svg>
+          <p>02 STREIFEN<br>Licht-Azimut ±22°</p>
+        </div>
+        <div class="frame">
+          <svg viewBox="0 0 160 100"><rect x="1" y="1" width="158" height="98" fill="none" stroke="#26221C"/>
+            <rect x="44" y="30" width="72" height="40" fill="#C9C4B6"/>
+            <path d="M80 84 L80 74" stroke="#D3A672" stroke-width="1"/><path d="M76 78 L80 72 L84 78" fill="none" stroke="#D3A672"/></svg>
+          <p>03 HEBUNG<br>Objekt +1.4 y, 1.2 s</p>
+        </div>
+        <div class="frame">
+          <svg viewBox="0 0 160 100"><rect x="1" y="1" width="158" height="98" fill="none" stroke="#26221C"/>
+            <rect x="30" y="44" width="44" height="30" fill="#4A3A28"/><rect x="92" y="44" width="38" height="30" fill="#1A1712"/>
+            <path d="M82 34 L82 84" stroke="#3A342B" stroke-dasharray="2 4"/></svg>
+          <p>AUSNAHME<br>Weitwinkel, Akt III, einmal</p>
+        </div>
+        <div class="frame">
+          <svg viewBox="0 0 160 100"><rect x="1" y="1" width="158" height="98" fill="none" stroke="#26221C"/>
+            <rect x="42" y="34" width="76" height="44" fill="#EFEBDF"/>
+            <rect x="42" y="34" width="76" height="44" fill="none" stroke="#FFE8C6"/></svg>
+          <p>SCHLUSS<br>frontal, statisch, 0°</p>
+        </div>
+      </div>
+      <dl class="spec" style="margin-top:28px;max-width:660px">
+        <dt>Brennweite</dt><dd>35 mm äquiv., FOV 28° — fest, wird nie animiert</dd>
+        <dt>Höhe</dt><dd>Objektmitte minus 0.4 — wir schauen leicht hinauf</dd>
+        <dt>Zeigerfreiheit</dt><dd>max. 6° Parallaxe, gedämpft mit λ 0.08 — nie 1:1 an der Maus</dd>
+        <dt>Scroll-Bindung</dt><dd>Dolly und Licht-Azimut, sonst nichts</dd>
+        <dt>Verboten</dt><dd>Roll, Zoom, Orbit, Shake, automatisches Schweben</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 10 EMOTION ============================ -->
+<section class="sheet" id="emotion">
+  <div class="wrap grid">
+    <p class="marg"><b>10</b>Emotion</p>
+    <div>
+      <h2>Fünf Beats, jeder mit einem Mechanismus.</h2>
+      <p class="lead">Gefühl wird hier nicht erhofft, sondern gebaut. Zu jedem Beat gehört das konkrete Mittel, das ihn auslöst.</p>
+      <div class="tw"><table>
+        <thead><tr><th>Beat</th><th>Gefühl</th><th>Mechanismus</th><th>Sekunde</th></tr></thead>
+        <tbody>
+          <tr><td>Wiedererkennen</td><td>«Das kenne ich.»</td><td>Der Körper trägt echte Schweizer Formularsprache — Koordinationsabzug, Umwandlungssatz. Kein Lorem, kein erfundenes Layout.</td><td class="n">0–4</td></tr>
+          <tr><td>Unbehagen</td><td>«Ich habe das nie geöffnet.»</td><td>Das Flachlicht in Akt IV. Die Schrift ist da und trotzdem unlesbar — körperlich unangenehm.</td><td class="n">18–24</td></tr>
+          <tr><td>Neugier</td><td>«Was steht da?»</td><td>Der Zeiger bewegt das Licht. Der Nutzer entdeckt selbst, dass Lesbarkeit vom Winkel abhängt.</td><td class="n">4–12</td></tr>
+          <tr><td>Erleichterung</td><td>«Ach, das heisst es.»</td><td>Der erste vollständig gesetzte Satz in unserer eigenen Schrift, flach, scharf, ruhig. Kontrast zur Prägung.</td><td class="n">26–34</td></tr>
+          <tr><td>Absicht</td><td>«Das will ich für meine Versicherten.»</td><td>Die unbrandete Bühne: der Käufer sieht sein eigenes Logo-Feld leer und füllt es im Kopf.</td><td class="n">40+</td></tr>
+        </tbody>
+      </table></div>
+      <p class="quote">Ehrfurcht ist ein Nebenprodukt von Massstab und Stille. Beides ist billig — man muss es nur zulassen.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 11 ARCHITEKTUR ============================ -->
+<section class="sheet" id="architektur">
+  <div class="wrap grid">
+    <p class="marg"><b>11</b>Architektur</p>
+    <div>
+      <h2>Vom ersten Bild bis zur Anfrage.</h2>
+      <p class="lead">Elf Stationen, eine durchgehende Kamerafahrt. Jede Station hat eine Botschaft, eine 3D-Szene, eine Interaktion und einen Konversionszweck. Nichts steht ohne Auftrag da.</p>
+      <div class="tw"><table>
+        <thead><tr><th>Station</th><th>Botschaft</th><th>3D / Komposition</th><th>Interaktion</th><th>Zweck</th></tr></thead>
+        <tbody>
+          <tr><td>01 Hero</td><td>Was eingedrückt wurde, sieht man nur im streifenden Licht.</td><td>Körper unten rechts, Licht tief links, Staub im Kegel</td><td>Zeiger bewegt Licht-Azimut ±22°</td><td>Verstehen in 4 s, ohne zu lesen</td></tr>
+          <tr><td>02 Feuer</td><td>Jemand war hier. Jemand hat gezählt.</td><td>Wand mit Handabdruck und 13 Kerben, Feuer als einzige Quelle</td><td>Scroll zeichnet Hand und Kerben</td><td>Legitimation: das ist alt, nicht neu</td></tr>
+          <tr><td>03 Uruk</td><td>Die erste Schrift war eine Abrechnung.</td><td>Tontafel kippt heran, 63 Keile werden gedrückt</td><td>Scroll setzt die Zeichen</td><td>Die Gründungsthese wird bewiesen, nicht behauptet</td></tr>
+          <tr><td>04 Drift</td><td>Das Buch wurde genauer, die Erzählung verschwand.</td><td>Einziger Weitwinkel, Körper spaltet sich, kalt</td><td>Scroll treibt die Hälften auseinander</td><td>Das Problem bekommt eine Ursache</td></tr>
+          <tr><td>05 Heute</td><td>Genau, vollständig, ungeöffnet.</td><td>Flaches Licht, Amt-Blau, kein Schatten</td><td>keine — hier darf man nichts tun</td><td>Schmerzpunkt, körperlich</td></tr>
+          <tr><td>06 Öffnung</td><td>Wir setzen die beiden wieder zusammen.</td><td>Fläche hebt sich, Rim-Licht, Boden wird Papier</td><td>Übergabe an die flache Seite</td><td>Auflösung, Markenname zum ersten Mal gross</td></tr>
+          <tr><td>07 Formate</td><td>Dieselben Daten, dreimal zugestellt.</td><td>Drei Körper in einer Reihe, unterschiedliche Seitenverhältnisse, gleiches Licht</td><td>Hover belebt je einen</td><td>Produktverständnis in einem Blick</td></tr>
+          <tr><td>08 Bereiche</td><td>Fünf Branchen, ein Handwerk.</td><td>Flache Tabelle, kein 3D — bewusste Ruhepause</td><td>Zeile tritt vor</td><td>Relevanz für den eigenen Sektor finden</td></tr>
+          <tr><td>09 Bühne</td><td>Sehen Sie es sich an.</td><td>Unbrandetes Erzeugnis in echt, weisses Papier auf Kohle</td><td>Bereich × Format, 15 Kombinationen</td><td>Kernkonversion: Selbstbedienung statt Demo-Termin</td></tr>
+          <tr><td>10 Wofür</td><td>Weniger Rückfragen, mehr Termine, mehr Vertrauen.</td><td>kein 3D, Text und drei Ergebnisse</td><td>wechselt mit dem Bereich</td><td>Argument für das Budget des Käufers</td></tr>
+          <tr><td>11 Kontakt</td><td>Ein Gespräch, keine Demo.</td><td>Der Körper liegt wieder da, dunkel, in Ruhe</td><td>Mailto, ein Feld, kein Formular</td><td>Abschluss</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Nutzbarkeit über allem</h3>
+      <ul class="plain">
+        <li>Die Kopfzeile bleibt durchgehend bedienbar, auch während der Kamerafahrt. Sprachwechsel funktioniert an jeder Stelle.</li>
+        <li>Ein Sprunglink überspringt die gesamte Inszenierung und landet direkt auf Station 07.</li>
+        <li>Jede 3D-Station hat einen Textzwilling im DOM. Screenreader bekommen die Erzählung als Prosa, nicht als «Canvas».</li>
+        <li>Keine Station braucht mehr als drei Bildschirmhöhen Scroll. Wer nicht scrollt, verpasst nichts Entscheidendes.</li>
+        <li>Auf Touch entfällt die Zeigerinteraktion; das Licht rakt dann automatisch einmal pro Station, gebunden an den Scroll.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 12 HERO ============================ -->
+<section class="sheet" id="signature">
+  <div class="wrap grid">
+    <p class="marg"><b>12</b>Signature Hero</p>
+    <div>
+      <h2>Das Objekt oben auf dieser Seite ist der Hero.</h2>
+      <p class="lead">Kein Rendering, kein Video — die tatsächliche Szene, in Echtzeit. Was Sie oben bewegt haben, ist die Spezifikation.</p>
+      <div class="cols2" style="margin-top:30px">
+        <div>
+          <h4>Geometrie</h4>
+          <dl class="spec">
+            <dt>Körper</dt><dd>3.4 × 4.6 × 0.12, Kanten 1.5 mm gefast</dd>
+            <dt>Polygone</dt><dd>1 248 — das Objekt ist absichtlich dumm</dd>
+            <dt>Boden</dt><dd>Ebene 40 × 40, nur Schattenempfänger</dd>
+            <dt>Staub</dt><dd>420 Punkte, additiv, 0.02 Grösse</dd>
+            <dt>Draw Calls</dt><dd>4</dd>
+          </dl>
+          <h4 style="margin-top:26px">Textur</h4>
+          <dl class="spec">
+            <dt>Quelle</dt><dd>Vorsorgeausweis, in Canvas gesetzt, 1024²</dd>
+            <dt>Rolle</dt><dd>Höhenkarte (bump), nicht Albedo</dd>
+            <dt>Tiefe</dt><dd>0.014 im Objektmass ≈ 0.2 mm real</dd>
+            <dt>Folge</dt><dd>im Flachlicht unsichtbar, im Streiflicht lesbar</dd>
+          </dl>
+        </div>
+        <div>
+          <h4>Auftritt</h4>
+          <dl class="spec">
+            <dt>0.0 s</dt><dd>Schwarz. Nur Korn.</dd>
+            <dt>0.2 s</dt><dd>Körper steigt aus −2.4 y, Ease 0.16 / 1 / 0.3 / 1</dd>
+            <dt>0.6 s</dt><dd>Key fährt von −64° auf −18° Azimut — die Schrift erscheint von rechts nach links</dd>
+            <dt>1.4 s</dt><dd>Staub setzt ein, Deckkraft 0 → 1</dd>
+            <dt>1.8 s</dt><dd>Zeile setzt sich Wort für Wort, 42 ms Versatz</dd>
+            <dt>2.6 s</dt><dd>Ruhe. Nichts bewegt sich ausser dem Staub.</dd>
+          </dl>
+          <h4 style="margin-top:26px">Interaktion</h4>
+          <dl class="spec">
+            <dt>Zeiger X</dt><dd>Licht-Azimut −40° … +4°, gedämpft λ 0.08</dd>
+            <dt>Zeiger Y</dt><dd>Elevation 4° … 16°</dd>
+            <dt>Kamera</dt><dd>max. 6° Parallaxe, gegenläufig, halbe Amplitude</dd>
+            <dt>Scroll</dt><dd>Dolly −3.2 z über die Hero-Höhe, Licht folgt</dd>
+            <dt>Touch</dt><dd>automatischer Rake, 9 s Periode, sinusförmig</dd>
+          </dl>
+        </div>
+      </div>
+      <p style="margin-top:26px;color:#CFC8BC;max-width:64ch">Der Hero muss auch dann funktionieren, wenn niemand die Maus bewegt: der automatische Rake läuft 9 Sekunden nach dem Laden an, falls kein Zeiger registriert wurde. Das Versprechen darf nicht von einer Geste abhängen.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 13 MOTION ============================ -->
+<section class="sheet" id="motion">
+  <div class="wrap grid">
+    <p class="marg"><b>13</b>Motion-System</p>
+    <div>
+      <h2>Choreografie, nicht Effektsammlung.</h2>
+      <p class="lead">Jede Bewegung hat eine Aufgabe: Aufmerksamkeit führen, Zustand erklären oder Zusammenhang zeigen. Alles andere wird gestrichen.</p>
+      <h3>Scroll-Choreografie</h3>
+      <div class="tw"><table>
+        <thead><tr><th>Abschnitt</th><th>Bindung</th><th>Länge</th><th>Was passiert</th></tr></thead>
+        <tbody>
+          <tr><td>Hero</td><td>frei, nicht gepinnt</td><td class="n">100 svh</td><td>Dolly und Licht folgen dem Scroll, Objekt bleibt in der Bildmitte</td></tr>
+          <tr><td>Akt I–V</td><td>gepinnt, ein Sticky-Stage</td><td class="n">5 × 110 svh</td><td>Kamera fährt kontinuierlich, Material und Licht wechseln pro Akt</td></tr>
+          <tr><td>Übergabe</td><td>gepinnt, letzte 40 %</td><td class="n">—</td><td>Grundfarbe interpoliert in Papier, Schrift kippt von hell auf dunkel</td></tr>
+          <tr><td>Formate</td><td>frei</td><td class="n">auto</td><td>Drei Körper kommen aus 12 px Tiefe, 90 ms versetzt</td></tr>
+          <tr><td>Bühne</td><td>frei</td><td class="n">auto</td><td>Formatwechsel morpht: Skalierung 0.955 → 1, Unschärfe 9 → 0 px</td></tr>
+          <tr><td>Kennzahlen</td><td>Sichtbarkeit</td><td class="n">einmalig</td><td>Zähler laufen hoch, Elemente wachsen, Text bewegt sich nie</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Zeit und Kurven</h3>
+      <div class="tw"><table>
+        <thead><tr><th>Klasse</th><th>Dauer</th><th>Kurve</th><th>Anwendung</th></tr></thead>
+        <tbody>
+          <tr><td>Mikro</td><td class="n">120–180 ms</td><td class="n">cubic-bezier(.4,0,.2,1)</td><td>Hover, Fokus, Chip-Wechsel</td></tr>
+          <tr><td>Element</td><td class="n">380–520 ms</td><td class="n">cubic-bezier(.16,1,.3,1)</td><td>Karten, Balken, Masken, Pille</td></tr>
+          <tr><td>Erzählung</td><td class="n">700–950 ms</td><td class="n">cubic-bezier(.22,.61,.36,1)</td><td>Zähler, Linienzeichnung, Aufdeckung</td></tr>
+          <tr><td>Kamera</td><td class="n">an Scroll gebunden</td><td class="n">linear, Dämpfung λ 0.08</td><td>Dolly, Rake, Hebung</td></tr>
+          <tr><td>Atem</td><td class="n">4.6 s</td><td class="n">ease-in-out, endlos</td><td>Staub, Feuer, Silhouetten</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Regeln</h3>
+      <ul class="plain">
+        <li><strong>Versatz statt Gleichzeitigkeit.</strong> Zusammengehörige Elemente starten 42–90 ms nacheinander, in Leserichtung.</li>
+        <li><strong>Nie zwei Erzählbewegungen gleichzeitig.</strong> Wenn die Kamera fährt, steht die Schrift. Wenn die Schrift sich setzt, steht die Kamera.</li>
+        <li><strong>Zahlen zählen, Text nicht.</strong> Ein Absatz, der sich bewegt, ist ein Fehler.</li>
+        <li><strong>Bewegung endet in Ruhe.</strong> Jede Sequenz hat einen Endzustand, der auch als Standbild funktioniert.</li>
+        <li><strong>Scroll-Hijacking ist verboten.</strong> Gepinnt heisst gepinnt, nicht umgelenkt. Ein Wisch bewegt immer genau so weit, wie er soll.</li>
+      </ul>
+      <h3>Leistung</h3>
+      <dl class="spec" style="max-width:660px">
+        <dt>Ziel</dt><dd>60 fps auf M1 Air und iPhone 12, 45 fps Untergrenze</dd>
+        <dt>Budget</dt><dd>≤ 6 Draw Calls, ≤ 40 k Dreiecke, ein 1024²-Textur-Atlas</dd>
+        <dt>Renderer</dt><dd>DPR gedeckelt auf 1.75, Schatten 2048², kein SSAO, kein SSR</dd>
+        <dt>Nur Compositing</dt><dd>animiert werden ausschliesslich transform, opacity, filter, clip-path</dd>
+        <dt>Gewicht</dt><dd>≤ 180 kB kritisch, 3D lazy nach First Paint, Poster-Bild zuerst</dd>
+        <dt>Abschaltung</dt><dd>fällt die Bildrate dreimal unter 40 fps, wird die Szene eingefroren und das Poster gezeigt</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 14 ZUGÄNGLICHKEIT ============================ -->
+<section class="sheet" id="a11y">
+  <div class="wrap grid">
+    <p class="marg"><b>14</b>Zugänglichkeit</p>
+    <div>
+      <h2>Die Inszenierung ist abschaltbar, die Argumentation nicht.</h2>
+      <ul class="plain" style="margin-top:26px">
+        <li><strong>prefers-reduced-motion</strong> — kein Pinning, keine Kamerafahrt, kein Staub. Die fünf Akte werden fünf gesetzte Absätze mit je einem Standbild. Die Seite wird dabei rund fünf Bildschirmhöhen kürzer.</li>
+        <li><strong>Ohne WebGL</strong> — ein Poster in derselben Bildsprache, 42 kB WebP. Kein Hinweis, keine Entschuldigung, kein Unterschied im Text.</li>
+        <li><strong>Ohne JavaScript</strong> — die vollständige Seite in Ruhe, Deutsch, alle Inhalte vorhanden.</li>
+        <li><strong>Tastatur</strong> — jede Station ist per Tab erreichbar, die Bühne vollständig bedienbar, sichtbarer Fokus auf Kohle mit 3 px Abstand.</li>
+        <li><strong>Screenreader</strong> — Canvas ist <code>aria-hidden</code>. Jede Szene hat einen Prosa-Zwilling, der dasselbe erzählt.</li>
+        <li><strong>Kontrast</strong> — Fliesstext 11.4:1, Sekundärtext 6.2:1, Bedienelemente ≥ 4.5:1. Kein Text liegt je auf bewegtem Bild ohne Abdunklung.</li>
+        <li><strong>Vestibulär</strong> — keine Parallaxe über 6°, kein Zoom, keine Rotation um die Z-Achse. Nichts, was Schwindel auslöst.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 15 PRODUKTION ============================ -->
+<section class="sheet" id="produktion">
+  <div class="wrap grid">
+    <p class="marg"><b>15</b>Produktion</p>
+    <div>
+      <h2>Wie das gebaut wird.</h2>
+      <div class="cols2" style="margin-top:28px">
+        <div class="card"><h4>Stack</h4><p>Three.js, ohne Framework. Eine Szene, ein Renderer, ein RAF. Kein React, kein Physik-Modul, keine Post-Processing-Kette ausser Tone Mapping und Vignette.</p></div>
+        <div class="card"><h4>Assets</h4><p>Keine Modelldateien. Der Körper ist Code, die Textur wird zur Laufzeit in Canvas gesetzt. Damit ist die Schrift in fünf Sprachen korrekt, ohne fünf Texturen.</p></div>
+        <div class="card"><h4>Aufwand</h4><p>Hero und Aktfolge 12–16 Personentage. Bühne und Inhalt stehen bereits. Typo-Lizenzen separat.</p></div>
+        <div class="card"><h4>Risiko</h4><p>Die Wirkung hängt an einer einzigen Idee — dem Streiflicht. Wenn die in einem Test nicht trägt, trägt gar nichts. Deshalb wird sie zuerst gebaut, nicht zuletzt.</p></div>
+      </div>
+      <p class="quote" style="margin-top:36px">Wenn diese Seite eines beweist, dann dass ein Dokument ein Körper ist. Alles andere folgt daraus.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>Tellingly — Creative Direction 3D · «Der Abdruck» · v1 · 2026</p>
+    <p>Der Hero auf dieser Seite läuft in Echtzeit. Bewegen Sie den Zeiger.</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var canvas = document.getElementById("gl");
+var fallback = document.getElementById("fallback");
+function bail(){ canvas.style.display="none"; fallback.style.display="flex"; }
+if (typeof THREE === "undefined" || reduce) { bail(); return; }
+
+var renderer;
+try{
+  renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:false});
+}catch(e){ bail(); return; }
+if(!renderer.getContext()){ bail(); return; }
+
+var host = document.getElementById("hero");
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 1.75));
+renderer.setSize(host.clientWidth, host.clientHeight, false);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.92;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+var scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0B0A09);
+scene.fog = new THREE.FogExp2(0x0B0A09, 0.028);
+
+var camera = new THREE.PerspectiveCamera(28, host.clientWidth/host.clientHeight, 0.1, 60);
+camera.position.set(0.55, 0.05, 14.6);
+camera.lookAt(1.45, -0.55, 0);
+
+/* ---- the body: the statement as a height map, never as albedo ---- */
+var LINES = [
+ "Vorsorgeausweis / Certificat de prevoyance",
+ "gueltig ab 01.01.2027      Nr. 4 812 977",
+ "Jahrgang 1968   Beschaeftigungsgrad 100.00 %",
+ "Gemeldeter Jahreslohn            118 400.00",
+ "Koordinationsabzug               -26 460.00",
+ "Versicherter Lohn                 91 940.00",
+ "Altersguthaben per 31.12.2026    301 661.50",
+ "Altersgutschrift 2027  15.0 %     13 791.00",
+ "Zinssatz obligatorisch    1.25 %",
+ "ueberobligatorisch        1.00 %",
+ "Voraussichtl. Altersrente ab 65   18 099.70",
+ "Voraussichtl. Altersrente ab 62   14 902.30",
+ "Invalidenrente jaehrlich          45 970.00",
+ "Ehegattenrente jaehrlich          27 582.00",
+ "Waisenrente jaehrlich              9 194.00",
+ "Sparbeitrag Arbeitnehmer             574.62",
+ "Sparbeitrag Arbeitgeber              574.63",
+ "Moeglicher Einkauf                64 209.00",
+ "Freizuegigkeit Art. 15 / 17 FZG  301 661.50",
+ "Deckungsgrad der Kasse    108.4 %",
+ "Umwandlungssatz 65  6.00 %   62  5.40 %",
+ "Technischer Zinssatz      1.75 %"
+];
+function makeHeight(){
+  /* the canvas matches the slab ratio so the type is not squeezed */
+  var W = 768, H = 1024, c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  var x = c.getContext("2d");
+  x.fillStyle = "#000"; x.fillRect(0,0,W,H);
+  x.fillStyle = "#fff";
+  x.font = "27px 'IBM Plex Mono', ui-monospace, monospace";
+  x.textBaseline = "top";
+  var y = 92, i = 0;
+  while (y < H - 80){
+    x.fillText(LINES[i % LINES.length], 62, y);
+    y += 52; i++;
+  }
+  /* the fold lines of a letter, pressed into the same surface */
+  x.fillStyle = "rgba(255,255,255,.6)";
+  x.fillRect(40, Math.round(H/3), W-80, 3);
+  x.fillRect(40, Math.round(H*2/3), W-80, 3);
+  var t = new THREE.CanvasTexture(c);
+  t.anisotropy = 8;
+  return t;
+}
+var height = makeHeight();
+
+var paper = new THREE.MeshStandardMaterial({
+  color: 0xB9B4A6, roughness: 0.94, metalness: 0.0,
+  bumpMap: height, bumpScale: 0.055
+});
+var edge = new THREE.MeshStandardMaterial({color: 0xA9A395, roughness: 0.96, metalness: 0.0});
+
+var body = new THREE.Mesh(
+  new THREE.BoxGeometry(4.2, 5.6, 0.14),
+  [edge, edge, edge, edge, paper, edge]
+);
+body.castShadow = true;
+body.position.set(2.05, -0.70, 0);
+body.rotation.set(-0.03, 0.07, 0.0);
+scene.add(body);
+
+var ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(46, 46),
+  new THREE.ShadowMaterial({opacity: 0.55})
+);
+ground.rotation.x = -Math.PI/2;
+ground.position.y = -3.45;
+ground.receiveShadow = true;
+scene.add(ground);
+
+/* ---- one key, one whisper of fill, nothing else ---- */
+var key = new THREE.DirectionalLight(0xFFCF9A, 2.6);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.near = 1; key.shadow.camera.far = 30;
+key.shadow.camera.left = -6; key.shadow.camera.right = 6;
+key.shadow.camera.top = 6; key.shadow.camera.bottom = -6;
+key.shadow.bias = -0.0008;
+scene.add(key);
+var hemi = new THREE.HemisphereLight(0x5A6A78, 0x0B0A09, 0.10);
+scene.add(hemi);
+var WARM = new THREE.Color(0xFFCF9A), COOL = new THREE.Color(0xE8EEF4);
+
+var rim = new THREE.DirectionalLight(0xFFE8C6, 0.35);
+rim.position.set(-4.2, 2.0, 3.0);
+scene.add(rim);
+
+/* ---- dust, only where the beam is ---- */
+var dust;
+(function(){
+  var n = 420, pos = new Float32Array(n*3);
+  for (var i=0;i<n;i++){
+    pos[i*3]   = (Math.random()-0.5)*9;
+    pos[i*3+1] = (Math.random()-0.5)*6.5 - 0.3;
+    pos[i*3+2] = (Math.random()-0.5)*5 + 1.2;
+  }
+  var g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos,3));
+  dust = new THREE.Points(g, new THREE.PointsMaterial({
+    color: 0xFFD9A8, size: 0.022, transparent: true, opacity: 0,
+    depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true
+  }));
+  scene.add(dust);
+})();
+
+/* ---- state ---- */
+var az = 1.36, el = 0.30, azT = 0.30, elT = 0.30;
+var camX = 0, camY = 0, camXT = 0, camYT = 0;
+var t0 = performance.now(), pointerSeen = false, scrollP = 0;
+
+/* az is the grazing angle in radians: 0.21 rad = 12° (relief) … 1.36 rad = 78° (flat) */
+function placeKey(){
+  var r = 9.6;
+  key.position.set(
+    body.position.x + Math.cos(az)*r,
+    body.position.y + Math.sin(el)*r*0.55 + 1.1,
+    Math.sin(az)*r
+  );
+  key.target.position.set(body.position.x, body.position.y, 0);
+  key.target.updateMatrixWorld();
+}
+scene.add(key.target);
+
+host.addEventListener("pointermove", function(e){
+  pointerSeen = true;
+  var r = host.getBoundingClientRect();
+  var nx = (e.clientX - r.left)/r.width, ny = (e.clientY - r.top)/r.height;
+  azT = 0.21 + nx*1.15;               /* 12° streifend … 78° flach */
+  elT = 0.16 + (1-ny)*0.34;
+  camXT = (nx-0.5)*0.30; camYT = (0.5-ny)*0.16;
+});
+host.addEventListener("pointerleave", function(){ camXT = 0; camYT = 0; });
+
+addEventListener("scroll", function(){
+  var r = host.getBoundingClientRect();
+  scrollP = Math.min(1, Math.max(0, -r.top / Math.max(1, host.offsetHeight)));
+}, {passive:true});
+
+addEventListener("resize", function(){
+  renderer.setSize(host.clientWidth, host.clientHeight, false);
+  camera.aspect = host.clientWidth/host.clientHeight;
+  camera.updateProjectionMatrix();
+});
+
+/* ---- entrance, then stillness ---- */
+function ease(x){ return 1 - Math.pow(1-x, 3); }
+
+var slow = 0, frames = 0, shed = false, lastT = performance.now();
+var noGuard = /noguard/.test(location.search);   /* Regie-Ansicht: Qualitätswächter aus */
+function frame(now){
+  requestAnimationFrame(frame);
+  var t = (now - t0)/1000;
+
+  /* performance: shed quality first, give up only if that was not enough */
+  frames++;
+  if (!noGuard && now - lastT > 1000){
+    if (frames < 30) slow++; else slow = 0;
+    frames = 0; lastT = now;
+    if (slow === 2 && !shed){
+      shed = true;
+      renderer.setPixelRatio(1);
+      renderer.shadowMap.enabled = false;
+      paper.needsUpdate = true;
+      dust.visible = false;
+    }
+    if (slow >= 6){ bail(); return; }
+  }
+
+  var intro = Math.min(1, Math.max(0, (t - 0.2)/1.4));
+  body.position.y = -0.35 - (1-ease(intro))*2.4;
+  body.rotation.x = -0.06 - (1-ease(intro))*0.10;
+  dust.material.opacity = Math.min(1, Math.max(0,(t-1.4)/1.2)) * 0.75;
+
+  /* the light finds the surface — the whole idea of the page */
+  var introAz = 1.36 - ease(Math.min(1, Math.max(0,(t-0.6)/1.8))) * 1.06;
+  var target = (t < 2.4 || (!pointerSeen && t > 9))
+    ? (t < 2.4 ? introAz : 0.52 + Math.sin(t*0.30)*0.33)
+    : azT;
+  az += (target - az) * 0.08;
+  el += (elT - el) * 0.08;
+  placeKey();
+
+  /* flach heisst Bürolicht: kälter, diffuser, und das Relief verschwindet */
+  var k = Math.min(1, Math.max(0, (az - 0.21)/1.15));
+  key.color.copy(WARM).lerp(COOL, k);
+  key.intensity = 2.6 - k*0.55;
+  hemi.intensity = 0.10 + k*0.70;
+  paper.bumpScale = 0.055 * (1 - k*0.55);
+
+  camX += (camXT - camX)*0.06; camY += (camYT - camY)*0.06;
+  camera.position.x = 0.55 + camX - scrollP*0.2;
+  camera.position.y = 0.05 + camY;
+  camera.position.z = 14.6 - scrollP*3.2;
+  camera.lookAt(1.45, -0.55 + camY*0.4, 0);
+
+  var p = dust.geometry.attributes.position;
+  for (var i=1;i<p.array.length;i+=3){
+    p.array[i] += 0.0016;
+    if (p.array[i] > 3.2) p.array[i] = -3.6;
+  }
+  p.needsUpdate = true;
+
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

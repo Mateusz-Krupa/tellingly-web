@@ -1,0 +1,10 @@
+services:
+  tellingly:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tellingly:latest
+    container_name: tellingly
+    ports:
+      - "8080:80"
+    restart: unless-stopped
